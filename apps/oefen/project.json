@@ -1,0 +1,9 @@
+{
+  "name": "oefen",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/oefen/src",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project oefen --web",
+  "targets": {}
+}
