@@ -1,0 +1,85 @@
+{
+  "name": "worker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/worker/src",
+  "projectType": "application",
+  "tags": ["type:app", "platform:lambda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["database:prisma-generate"],
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/worker-lambda",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": true,
+        "external": ["@prisma/client", ".prisma/client"],
+        "main": "apps/worker/src/main.ts",
+        "tsConfig": "apps/worker/tsconfig.app.json",
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "LAMBDA_MODULES=dist/apps/worker-lambda/node_modules && CLIENT_DIR=$(dirname \"$(node -p \"require.resolve('@prisma/client/package.json')\")\") && ENGINE_DIR=$(dirname \"$(dirname \"$CLIENT_DIR\")\")/.prisma/client && mkdir -p \"$LAMBDA_MODULES/@prisma/client\" \"$LAMBDA_MODULES/.prisma/client\" && cp -RL \"$CLIENT_DIR/.\" \"$LAMBDA_MODULES/@prisma/client/\" && cp -RL \"$ENGINE_DIR/.\" \"$LAMBDA_MODULES/.prisma/client/\"",
+        "cwd": "."
+      }
+    },
+    "invoke": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["package"],
+      "options": {
+        "command": "node apps/worker/invoke.cjs",
+        "cwd": "."
+      }
+    },
+    "seed-ssm": {
+      "executor": "nx:run-commands",
+      "options": {
+        "envFile": ".env",
+        "env": {
+          "SSM_PREFIX": "/oefen/worker",
+          "AWS_REGION": "us-west-1"
+        },
+        "commands": [
+          "aws ssm put-parameter --region $AWS_REGION --name $SSM_PREFIX/database-url --value \"$DATABASE_URL\" --type SecureString --overwrite",
+          "aws ssm put-parameter --region $AWS_REGION --name $SSM_PREFIX/garmin-username --value \"$GARMIN_USERNAME\" --type SecureString --overwrite",
+          "aws ssm put-parameter --region $AWS_REGION --name $SSM_PREFIX/garmin-password --value \"$GARMIN_PASSWORD\" --type SecureString --overwrite"
+        ],
+        "cwd": ".",
+        "parallel": false
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["package"],
+      "options": {
+        "commands": ["sam build", "sam deploy"],
+        "cwd": "apps/worker",
+        "parallel": false
+      }
+    }
+  }
+}

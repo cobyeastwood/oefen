@@ -1,0 +1,52 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model GarminActivity {
+  id               String   @id @default(cuid())
+  garminActivityId BigInt   @unique @map("garmin_activity_id")
+  activityName     String   @map("activity_name")
+  activityTypeKey  String   @map("activity_type_key")
+  startTimeLocal   DateTime @map("start_time_local")
+  startTimeGmt     DateTime @map("start_time_gmt")
+  distance         Float?
+  duration         Float?
+  averageSpeed     Float?   @map("average_speed")
+  elevationGain    Float?   @map("elevation_gain")
+  raw              Json?
+  syncedAt         DateTime @default(now()) @map("synced_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("garmin_activities")
+}
+
+model GarminDailySummary {
+  id                String   @id @default(cuid())
+  calendarDate      DateTime @unique @map("calendar_date") @db.Date
+  steps             Int?
+  sleepSeconds      Int?     @map("sleep_seconds")
+  deepSleepSeconds  Int?     @map("deep_sleep_seconds")
+  lightSleepSeconds Int?     @map("light_sleep_seconds")
+  remSleepSeconds   Int?     @map("rem_sleep_seconds")
+  awakeSleepSeconds Int?     @map("awake_sleep_seconds")
+  sleepScore        Int?     @map("sleep_score")
+  sleepStressAvg    Float?   @map("sleep_stress_avg")
+  restingHeartRate  Int?     @map("resting_heart_rate")
+  weightGrams       Float?   @map("weight_grams")
+  sleepRaw          Json?    @map("sleep_raw")
+  heartRateRaw      Json?    @map("heart_rate_raw")
+  weightRaw         Json?    @map("weight_raw")
+  syncedAt          DateTime @default(now()) @map("synced_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("garmin_daily_summaries")
+}

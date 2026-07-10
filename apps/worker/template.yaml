@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Daily Garmin Connect sync to Supabase
+
+Parameters:
+  SsmPrefix:
+    Type: String
+    Default: /oefen/worker
+    Description: SSM Parameter Store prefix for worker configuration
+
+Globals:
+  Function:
+    Timeout: 120
+    Runtime: nodejs22.x
+    MemorySize: 256
+    Environment:
+      Variables:
+        SSM_PREFIX: !Ref SsmPrefix
+
+Resources:
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: oefen-garmin-worker
+      Handler: main.handler
+      CodeUri: ../../dist/apps/worker-lambda
+      Description: Sync Garmin activities and yesterday's daily summary to Supabase
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmPrefix}/*'
+            - Effect: Allow
+              Action: ssm:PutParameter
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmPrefix}/garmin-tokens'
+
+  WorkerScheduleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: InvokeWorkerFunction
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt WorkerFunction.Arn
+
+  WorkerSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: oefen-garmin-worker-daily
+      Description: Sync Garmin data once per day at 9:00 AM US Eastern
+      ScheduleExpression: cron(0 9 * * ? *)
+      ScheduleExpressionTimezone: America/New_York
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn: !GetAtt WorkerFunction.Arn
+        RoleArn: !GetAtt WorkerScheduleRole.Arn

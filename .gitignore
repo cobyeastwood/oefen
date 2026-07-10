@@ -40,4 +40,8 @@ Thumbs.db
 .nx/workspace-data
 .nx/migrate-runs
 
+.env
+apps/worker/.aws-sam
+.aws-sam
+
 vite.config.*.timestamp*

@@ -5,15 +5,16 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "paths": {}
+    "paths": {
+      "@oefen/database": ["./libs/database/src/index.ts"],
+      "@oefen/garmin-connect": ["./libs/garmin-connect/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
