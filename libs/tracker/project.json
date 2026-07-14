@@ -1,0 +1,16 @@
+{
+  "name": "tracker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tracker/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:tracker"],
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec vitest run --config libs/tracker/vitest.config.ts",
+        "cwd": "."
+      }
+    }
+  }
+}

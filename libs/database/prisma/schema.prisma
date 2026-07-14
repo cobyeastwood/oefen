@@ -9,44 +9,141 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model GarminActivity {
+enum CheckpointType {
+  weekly_since_goal
+  deadline_quarter
+  goal_reached
+}
+
+enum SessionSource {
+  garmin
+  merged
+}
+
+enum GoalStatus {
+  active
+  achieved
+  abandoned
+  voided
+}
+
+model User {
+  id        String   @id @default("default")
+  phoneE164 String?  @map("phone_e164")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Session {
+  id         String        @id @default(cuid())
+  sport      String        @default("run")
+  occurredAt DateTime      @map("occurred_at")
+  durationS  Int           @map("duration_s")
+  distanceM  Float         @map("distance_m")
+  avgHr      Int?          @map("avg_hr")
+  maxHr      Int?          @map("max_hr")
+  rpe        Int?
+  feel       String?
+  title      String?
+  source     SessionSource @default(garmin)
+  wellnessId String?       @map("wellness_id")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  wellness   Wellness?     @relation(fields: [wellnessId], references: [id])
+  activities Activity[]
+
+  @@index([wellnessId])
+  @@map("sessions")
+}
+
+model Activity {
   id               String   @id @default(cuid())
   garminActivityId BigInt   @unique @map("garmin_activity_id")
-  activityName     String   @map("activity_name")
-  activityTypeKey  String   @map("activity_type_key")
-  startTimeLocal   DateTime @map("start_time_local")
+  typeKey          String   @map("type_key")
+  name             String?
   startTimeGmt     DateTime @map("start_time_gmt")
-  distance         Float?
-  duration         Float?
-  averageSpeed     Float?   @map("average_speed")
-  elevationGain    Float?   @map("elevation_gain")
-  raw              Json?
-  syncedAt         DateTime @default(now()) @map("synced_at")
+  durationS        Int      @map("duration_s")
+  distanceM        Float    @map("distance_m")
+  avgHr            Int?     @map("avg_hr")
+  maxHr            Int?     @map("max_hr")
+  sessionId        String?  @map("session_id")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
-  @@map("garmin_activities")
+  session Session? @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+  @@map("activities")
 }
 
-model GarminDailySummary {
+model Wellness {
   id                String   @id @default(cuid())
-  calendarDate      DateTime @unique @map("calendar_date") @db.Date
+  calendarDate      DateTime @unique @db.Date @map("calendar_date")
   steps             Int?
   sleepSeconds      Int?     @map("sleep_seconds")
   deepSleepSeconds  Int?     @map("deep_sleep_seconds")
   lightSleepSeconds Int?     @map("light_sleep_seconds")
   remSleepSeconds   Int?     @map("rem_sleep_seconds")
   awakeSleepSeconds Int?     @map("awake_sleep_seconds")
-  sleepScore        Int?     @map("sleep_score")
-  sleepStressAvg    Float?   @map("sleep_stress_avg")
   restingHeartRate  Int?     @map("resting_heart_rate")
-  weightGrams       Float?   @map("weight_grams")
-  sleepRaw          Json?    @map("sleep_raw")
-  heartRateRaw      Json?    @map("heart_rate_raw")
-  weightRaw         Json?    @map("weight_raw")
-  syncedAt          DateTime @default(now()) @map("synced_at")
+  minHeartRate      Int?     @map("min_heart_rate")
+  maxHeartRate      Int?     @map("max_heart_rate")
+  weightPounds      Float?   @map("weight_pounds")
+  hydrationOz       Float?   @map("hydration_oz")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
-  @@map("garmin_daily_summaries")
+  sessions Session[]
+
+  @@map("wellness")
+}
+
+model Goal {
+  id            String     @id @default(cuid())
+  effectiveFrom DateTime   @default(now()) @map("effective_from")
+  targetMetric  String     @map("target_metric")
+  targetValue   Float      @map("target_value")
+  unit          String
+  deadline      DateTime?
+  note          String?
+  status        GoalStatus @default(active)
+  continuesId   String?    @unique @map("continues_id")
+  supersedesId  String?    @unique @map("supersedes_id")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  @@map("goals")
+}
+
+model Checkpoint {
+  id           String         @id @default(cuid())
+  type         CheckpointType
+  periodStart  DateTime       @map("period_start")
+  periodEnd    DateTime       @map("period_end")
+  sessionCount Int            @map("session_count")
+  durationS    Int            @map("duration_s")
+  distanceM    Float          @map("distance_m")
+  metricsJson  Json           @map("metrics_json")
+  goalId       String?        @map("goal_id")
+  goalSnapshot Json?          @map("goal_snapshot")
+  sessionId    String?        @unique @map("session_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  @@unique([type, periodStart, periodEnd])
+  @@index([goalId, type])
+  @@map("checkpoints")
+}
+
+model Summary {
+  id            String    @id @default(cuid())
+  checkpointId  String    @unique @map("checkpoint_id")
+  content       String
+  promptVersion String    @map("prompt_version")
+  smsSentAt     DateTime? @map("sms_sent_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@map("summaries")
 }

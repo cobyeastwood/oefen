@@ -7,10 +7,18 @@
     "worker:build": "nx run worker:build",
     "worker:invoke": "nx run worker:invoke",
     "worker:deploy": "nx run worker:deploy",
-    "worker:seed-ssm": "nx run worker:seed-ssm",
+    "worker:sync-ssm": "nx run worker:sync-ssm",
     "db:generate": "nx run database:prisma-generate",
     "db:migrate": "nx run database:db-migrate",
-    "db:deploy": "nx run database:db-deploy"
+    "db:deploy": "nx run database:db-deploy",
+    "api:serve": "nx run api:serve",
+    "summary:build": "nx run summary:build",
+    "summary:invoke": "nx run summary:invoke",
+    "summary:deploy": "nx run summary:deploy",
+    "summary:sync-ssm": "nx run summary:sync-ssm",
+    "dev:ui": "nx run oefen:serve",
+    "dev": "pnpm api:serve & pnpm dev:ui",
+    "test": "nx run-many -t test -p tracker,utils,garmin"
   },
   "devDependencies": {
     "@nx/esbuild": "23.0.1",
@@ -33,16 +41,25 @@
     "prettier": "~3.6.2",
     "prisma": "6",
     "tslib": "^2.3.0",
+    "tsx": "^4.20.3",
     "typescript": "~5.9.2",
-    "vite": "^8.0.0"
+    "vite": "^8.0.0",
+    "vitest": "3"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.1085.0",
     "@aws-sdk/client-ssm": "^3.1085.0",
+    "@hono/node-server": "^2.0.8",
+    "@mastra/core": "^0.20.2",
     "@prisma/adapter-pg": "^6.19.3",
     "@prisma/client": "^6.19.3",
+    "dotenv": "^17.2.0",
     "garmin-connect": "^1.6.2",
+    "hono": "^4.12.30",
     "pg": "^8.22.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "twilio": "^6.0.2",
+    "zod": "^3.25.76"
   }
 }

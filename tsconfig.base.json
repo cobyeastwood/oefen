@@ -4,16 +4,22 @@
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@oefen/database": ["./libs/database/src/index.ts"],
-      "@oefen/garmin-connect": ["./libs/garmin-connect/src/index.ts"]
+      "@oefen/utils": ["./libs/utils/src/index.ts"],
+      "@oefen/utils/notify": ["./libs/utils/src/notify/index.ts"],
+      "@oefen/garmin": ["./libs/garmin/src/index.ts"],
+      "@oefen/tracker": ["./libs/tracker/src/index.ts"],
+      "@oefen/summarizer": ["./libs/summarizer/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

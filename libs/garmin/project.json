@@ -1,0 +1,17 @@
+{
+  "name": "garmin",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/garmin/src",
+  "projectType": "library",
+  "tags": ["type:lib"],
+  "implicitDependencies": ["database"],
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec vitest run --config libs/garmin/vitest.config.ts",
+        "cwd": "."
+      }
+    }
+  }
+}

@@ -1,9 +1,0 @@
-{
-  "name": "garmin-connect",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/garmin-connect/src",
-  "projectType": "library",
-  "tags": ["type:lib"],
-  "implicitDependencies": ["database"],
-  "targets": {}
-}

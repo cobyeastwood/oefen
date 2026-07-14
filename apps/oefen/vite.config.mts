@@ -5,9 +5,13 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/apps/oefen',
+  appType: 'spa',
   server: {
     port: 4200,
     host: 'localhost',
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
   },
   preview: {
     port: 4200,

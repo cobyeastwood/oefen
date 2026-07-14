@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Daily Garmin Connect sync to Supabase
+Description: Daily Garmin sync — sessions, auto-tags, checkpoints, summaries
 
 Parameters:
   SsmPrefix:
@@ -24,7 +24,7 @@ Resources:
       FunctionName: oefen-garmin-worker
       Handler: main.handler
       CodeUri: ../../dist/apps/worker-lambda
-      Description: Sync Garmin activities and yesterday's daily summary to Supabase
+      Description: Daily Garmin sync via syncGarmin (sessions, tags, checkpoints)
       Policies:
         - Version: '2012-10-17'
           Statement:

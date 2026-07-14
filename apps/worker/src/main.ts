@@ -1,11 +1,8 @@
 import type { Handler } from 'aws-lambda';
-import {
-  createGarminConnectClientFromEnv,
-  syncGarminToDatabase,
-} from '@oefen/garmin-connect';
+import { syncGarmin } from '@oefen/tracker';
 
 import { loadWorkerConfig, persistGarminTokens } from './lib/load-config';
-import { disconnectPrisma, getPrisma } from './lib/prisma';
+import { disconnectPrisma } from './lib/prisma';
 
 export const handler: Handler = async (event) => {
   console.log('Received event:', JSON.stringify(event));
@@ -13,14 +10,10 @@ export const handler: Handler = async (event) => {
   try {
     await loadWorkerConfig();
 
-    const prisma = await getPrisma();
-    const client = createGarminConnectClientFromEnv();
+    const result = await syncGarmin();
 
-    await client.connect();
-    const result = await syncGarminToDatabase(prisma, client);
-
-    if (process.env.SSM_PREFIX) {
-      await persistGarminTokens(JSON.stringify(client.exportTokens()));
+    if (process.env['GARMIN_TOKENS'] && process.env['SSM_PREFIX']) {
+      await persistGarminTokens(process.env['GARMIN_TOKENS']);
     }
 
     return {
