@@ -49,6 +49,6 @@ apps/worker/.aws-sam
 
 apps/web/api/**
 !apps/web/api/
-!apps/web/api/index.js
+!apps/web/api/\[\[...path\]\].js
 
 vite.config.*.timestamp*
