@@ -46,6 +46,9 @@ Thumbs.db
 
 apps/worker/.aws-sam
 .aws-sam
-apps/web/api/
+
+apps/web/api/**
+!apps/web/api/
+!apps/web/api/index.js
 
 vite.config.*.timestamp*

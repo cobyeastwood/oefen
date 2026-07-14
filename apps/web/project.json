@@ -23,6 +23,9 @@
         "generatePackageJson": false,
         "esbuildOptions": {
           "sourcemap": false,
+          "outExtension": {
+            ".js": ".js"
+          },
           "footer": {
             "js": "module.exports = module.exports.default;"
           }
@@ -32,9 +35,8 @@
         "development": {
           "esbuildOptions": {
             "sourcemap": true,
-            "footer": {
-              "js": "module.exports = module.exports.default;"
-            }
+            "outExtension": { ".js": ".js" },
+            "footer": { "js": "module.exports = module.exports.default;" }
           }
         },
         "production": {}
