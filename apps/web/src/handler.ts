@@ -1,4 +1,4 @@
-import { handle } from 'hono/vercel';
 import { app } from '@oefen/api-core';
 
-export default handle(app);
+/** Vercel Web Handler (`default.fetch`), not Node `(req, res)`. */
+export default app;

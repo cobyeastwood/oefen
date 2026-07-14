@@ -29,7 +29,7 @@ function createPool(): Pool {
     ssl: databaseUrl.includes('localhost')
       ? undefined
       : { rejectUnauthorized: false },
-    max: 5,
+    max: 1,
     connectionTimeoutMillis: 5_000,
   });
 }
