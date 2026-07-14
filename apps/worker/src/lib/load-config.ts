@@ -13,6 +13,10 @@ const SECURE_PARAM_ENV: Record<string, string> = {
 
 const OPTIONAL_PARAMS = new Set(['garmin-tokens']);
 
+/**
+ * Loads required secrets from SSM. `garmin-tokens` is optional: the Lambda
+ * creates/updates it only after a successful password login.
+ */
 export async function loadWorkerConfig(): Promise<void> {
   const prefix = process.env.SSM_PREFIX;
 

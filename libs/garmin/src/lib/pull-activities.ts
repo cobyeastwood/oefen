@@ -5,48 +5,55 @@ type GarminActivityPayload = Awaited<
 >[number];
 
 export type PullActivitiesOptions = {
-  backfillCap?: number;
-  pageSize?: number;
   knownActivityIds?: Set<number>;
+  /** Lower bound on activity startTimeGMT (typically user.createdAt). */
+  since?: Date;
 };
 
+const PAGE_SIZE = 20;
+
+/** Parse Garmin startTimeGMT (UTC wall time, often without a Z suffix). */
+function activityStartTime(activity: GarminActivityPayload): Date | null {
+  const raw = activity.startTimeGMT;
+  if (typeof raw === 'number') {
+    const startedAt = new Date(raw);
+    return Number.isNaN(startedAt.getTime()) ? null : startedAt;
+  }
+  if (typeof raw !== 'string' || raw.length === 0) {
+    return null;
+  }
+
+  const normalized = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw)
+    ? raw
+    : `${raw.replace(' ', 'T')}Z`;
+  const startedAt = new Date(normalized);
+  return Number.isNaN(startedAt.getTime()) ? null : startedAt;
+}
+
+/** Fetch one page of recent Garmin activities, filtered by known IDs and since. */
 export async function pullGarminActivities(
   client: GarminConnectClient,
   options: PullActivitiesOptions = {},
 ): Promise<GarminActivityPayload[]> {
-  const backfillCap = options.backfillCap ?? 200;
-  const pageSize = options.pageSize ?? 20;
-  // Local copy so pagination can mark seen ids without mutating the caller's
-  // DB-known set (ingest still needs that set to decide create vs skip).
-  const knownActivityIds = new Set(options.knownActivityIds ?? []);
+  const knownActivityIds = options.knownActivityIds ?? new Set<number>();
+  const since = options.since;
+  const page = await client.getActivities(0, PAGE_SIZE);
   const collected: GarminActivityPayload[] = [];
-  let start = 0;
 
-  while (collected.length < backfillCap) {
-    const page = await client.getActivities(start, pageSize);
-    if (page.length === 0) {
-      break;
-    }
-
-    if (page.every((activity) => knownActivityIds.has(activity.activityId))) {
-      break;
-    }
-
-    for (const activity of page) {
-      if (knownActivityIds.has(activity.activityId)) {
-        continue;
-      }
-      collected.push(activity);
-      knownActivityIds.add(activity.activityId);
-      if (collected.length >= backfillCap) {
-        return collected;
+  for (const activity of page) {
+    if (since) {
+      const startedAt = activityStartTime(activity);
+      if (!startedAt || startedAt < since) {
+        // Newest-first: remaining page entries are older than user.createdAt.
+        break;
       }
     }
 
-    if (page.length < pageSize) {
-      break;
+    if (knownActivityIds.has(activity.activityId)) {
+      continue;
     }
-    start += pageSize;
+
+    collected.push(activity);
   }
 
   return collected;

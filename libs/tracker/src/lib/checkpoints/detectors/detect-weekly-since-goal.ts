@@ -1,15 +1,15 @@
-import { getActiveGoalTip } from '@oefen/database';
-
-import { freezeCheckpoint, type FreezeResult } from '../freeze';
+import type { FreezeResult } from '../freeze';
+import { freezeCheckpoint } from '../freeze';
 import { closedWeeklyPeriods } from './closed-weekly-periods';
+import type { Detector, DetectorContext } from './detector';
 
 /**
  * For the active goal tip, freeze each closed 7-day window since effectiveFrom.
  */
-export async function detectWeeklySinceGoal(
-  now = new Date(),
-): Promise<FreezeResult[]> {
-  const goal = await getActiveGoalTip();
+async function detect({
+  now,
+  goal,
+}: DetectorContext): Promise<FreezeResult[]> {
   if (!goal) {
     return [];
   }
@@ -33,3 +33,8 @@ export async function detectWeeklySinceGoal(
 
   return results;
 }
+
+export const weeklySinceGoalDetector: Detector = {
+  id: 'weeklySinceGoal',
+  detect,
+};

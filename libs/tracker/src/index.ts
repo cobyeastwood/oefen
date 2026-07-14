@@ -1,5 +1,4 @@
 export { syncGarmin } from './lib/sync';
-export type { SyncGarminOptions } from './lib/sync';
 
 export {
   setGoal,

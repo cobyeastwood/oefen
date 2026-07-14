@@ -3,16 +3,17 @@ import { connectGarmin } from './connect-garmin';
 import { fetchRunningActivities } from './fetch-running-activities';
 import { ingestActivities } from './ingest-activities';
 import { syncWellness } from './sync-wellness';
-import type { SyncGarminOptions } from './types';
 
-export type { SyncGarminOptions } from './types';
+type SyncUser = {
+  createdAt: Date;
+};
 
 /** Connect → fetch runs → ingest sessions → wellness → detectors. */
-export async function syncGarmin(options: SyncGarminOptions = {}) {
+export async function syncGarmin(user: SyncUser) {
   const client = await connectGarmin();
   const { activities, knownActivityIds } = await fetchRunningActivities(
     client,
-    options,
+    user.createdAt,
   );
   const { ingested, skipped } = await ingestActivities(
     activities,

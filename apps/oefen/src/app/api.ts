@@ -4,6 +4,7 @@ import type { DistancePeriod, GoalType } from '@oefen/utils';
 export type User = {
   id: string;
   phoneE164: string | null;
+  status: 'active' | 'paused' | 'disabled';
 };
 
 export type Goal = {
@@ -37,10 +38,13 @@ export function getUser() {
   return request<{ user: User }>('/api/user');
 }
 
-export function updateUser(phoneE164: string | null) {
+export function updateUser(input: {
+  phoneE164?: string | null;
+  status?: User['status'];
+}) {
   return request<{ user: User }>('/api/user', {
     method: 'PUT',
-    body: JSON.stringify({ phoneE164 }),
+    body: JSON.stringify(input),
   });
 }
 

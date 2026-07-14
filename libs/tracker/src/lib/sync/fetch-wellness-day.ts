@@ -1,9 +1,6 @@
 import type { GarminConnectClient } from '@oefen/garmin';
 
-import {
-  normalizeWellnessDay,
-  sleepDurationToSeconds,
-} from './normalize-wellness-day';
+import { normalizeWellnessDay } from './normalize-wellness-day';
 import type { WellnessDayPayload } from './types';
 
 export type { WellnessDayPayload } from './types';
@@ -23,45 +20,30 @@ async function readOptional<T>(
   }
 }
 
-async function sleepSecondsFromDuration(
-  client: GarminConnectClient,
-  calendarDate: Date,
-): Promise<number | null> {
-  const duration = await readOptional('sleepDuration', () =>
-    client.getSleepDuration(calendarDate),
-  );
-  if (!duration || typeof duration !== 'object') {
-    return null;
-  }
-  return sleepDurationToSeconds(
-    duration as { hours?: unknown; minutes?: unknown },
-  );
-}
-
 /** Fetch and normalize Garmin wellness fields for one UTC calendar day. */
 export async function fetchWellnessForDay(
   client: GarminConnectClient,
   calendarDate: Date,
 ): Promise<WellnessDayPayload> {
-  const [steps, sleepData, heartRate, weightPounds, hydrationOz] =
-    await Promise.all([
-      readOptional('steps', () => client.getSteps(calendarDate)),
-      readOptional('sleep', () => client.getSleepData(calendarDate)),
-      readOptional('heartRate', () => client.getHeartRate(calendarDate)),
-      readOptional('weight', () => client.getDailyWeightInPounds(calendarDate)),
-      readOptional('hydration', () => client.getDailyHydration(calendarDate)),
-    ]);
-
-  const sleepSecondsFallback = await sleepSecondsFromDuration(
-    client,
-    calendarDate,
+  // Sequential on purpose — Garmin rate-limits bursts (Promise.all stampedes).
+  const steps = await readOptional('steps', () => client.getSteps(calendarDate));
+  const sleepData = await readOptional('sleep', () =>
+    client.getSleepData(calendarDate),
+  );
+  const heartRate = await readOptional('heartRate', () =>
+    client.getHeartRate(calendarDate),
+  );
+  const weightPounds = await readOptional('weight', () =>
+    client.getDailyWeightInPounds(calendarDate),
+  );
+  const hydrationOz = await readOptional('hydration', () =>
+    client.getDailyHydration(calendarDate),
   );
 
   return normalizeWellnessDay({
     calendarDate,
     steps: typeof steps === 'number' ? steps : null,
     sleepData,
-    sleepSecondsFallback,
     heartRate,
     weightPounds: typeof weightPounds === 'number' ? weightPounds : null,
     hydrationOz: typeof hydrationOz === 'number' ? hydrationOz : null,

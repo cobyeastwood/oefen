@@ -21,7 +21,7 @@ Resources:
   SummarizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: oefen-summarizer
+      FunctionName: oefen-summary
       Handler: main.handler
       CodeUri: ../../dist/apps/summary
       Description: Generate checkpoint summaries via Mastra agent

@@ -1,8 +1,14 @@
 import { Hono } from 'hono';
-
-import { getUser, normalizePhoneE164, updateUserPhone } from '@oefen/database';
+import type { UserStatus } from '@oefen/database';
+import {
+  getUser,
+  normalizePhoneE164,
+  updateUser,
+} from '@oefen/database';
 
 export const userRoutes = new Hono();
+
+const USER_STATUSES = new Set<UserStatus>(['active', 'paused', 'disabled']);
 
 userRoutes.get('/', async (c) => {
   const user = await getUser();
@@ -10,22 +16,44 @@ userRoutes.get('/', async (c) => {
     user: {
       id: user.id,
       phoneE164: user.phoneE164,
+      status: user.status,
     },
   });
 });
 
 userRoutes.put('/', async (c) => {
   const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
-  const parsed = parsePhoneE164(body['phoneE164']);
-  if ('error' in parsed) {
-    return c.json({ error: parsed.error }, 400);
+
+  const hasPhone = 'phoneE164' in body;
+  const hasStatus = 'status' in body;
+  if (!hasPhone && !hasStatus) {
+    return c.json({ error: 'Provide phoneE164 and/or status' }, 400);
   }
 
-  const user = await updateUserPhone(parsed.phoneE164);
+  let phoneE164: string | null | undefined;
+  if (hasPhone) {
+    const parsed = parsePhoneE164(body['phoneE164']);
+    if ('error' in parsed) {
+      return c.json({ error: parsed.error }, 400);
+    }
+    phoneE164 = parsed.phoneE164;
+  }
+
+  let status: UserStatus | undefined;
+  if (hasStatus) {
+    const parsed = parseStatus(body['status']);
+    if ('error' in parsed) {
+      return c.json({ error: parsed.error }, 400);
+    }
+    status = parsed.status;
+  }
+
+  const user = await updateUser({ phoneE164, status });
   return c.json({
     user: {
       id: user.id,
       phoneE164: user.phoneE164,
+      status: user.status,
     },
   });
 });
@@ -45,4 +73,13 @@ function parsePhoneE164(
     return { error: 'Phone must be in E.164 format, e.g. +15551234567' };
   }
   return { phoneE164 };
+}
+
+function parseStatus(
+  rawStatus: unknown,
+): { status: UserStatus } | { error: string } {
+  if (typeof rawStatus !== 'string' || !USER_STATUSES.has(rawStatus as UserStatus)) {
+    return { error: 'status must be one of active, paused, disabled' };
+  }
+  return { status: rawStatus as UserStatus };
 }

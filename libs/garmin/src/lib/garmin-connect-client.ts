@@ -1,6 +1,10 @@
 import { GarminConnect } from 'garmin-connect';
 
-import { isAuthError, withGarminRequest } from './garmin-request';
+import {
+  createGarminThrottleState,
+  isAuthError,
+  withGarminRequest,
+} from './garmin-request';
 
 export type GarminTokens = ReturnType<GarminConnect['exportToken']>;
 
@@ -14,7 +18,7 @@ export class GarminConnectClient {
   private readonly client: GarminConnect;
   private connected = false;
   private usedStoredTokens = false;
-  private readonly throttle = { lastRequestAt: 0 };
+  private readonly throttle = createGarminThrottleState();
 
   constructor(private readonly options: GarminConnectClientOptions) {
     this.client = new GarminConnect({
@@ -34,8 +38,11 @@ export class GarminConnectClient {
         this.options.tokens.oauth2,
       );
       this.usedStoredTokens = true;
+      console.log('Using Garmin tokens from SSM');
     } else {
+      console.log('No stored Garmin tokens, logging in');
       await withGarminRequest(this.throttle, () => this.client.login());
+      this.captureTokensAfterLogin();
     }
 
     this.connected = true;
@@ -65,16 +72,18 @@ export class GarminConnectClient {
     return this.request(() => this.client.getDailyWeightData(date));
   }
 
-  getSleepDuration(date = new Date()) {
-    return this.request(() => this.client.getSleepDuration(date));
-  }
-
   getDailyWeightInPounds(date = new Date()) {
     return this.request(() => this.client.getDailyWeightInPounds(date));
   }
 
   getDailyHydration(date = new Date()) {
     return this.request(() => this.client.getDailyHydration(date));
+  }
+
+  /** Only set after a password login; worker persists these to SSM. */
+  private captureTokensAfterLogin(): void {
+    process.env['GARMIN_TOKENS'] = JSON.stringify(this.exportTokens());
+    process.env['GARMIN_TOKENS_SHOULD_PERSIST'] = '1';
   }
 
   private async request<T>(fn: () => Promise<T>): Promise<T> {
@@ -88,6 +97,7 @@ export class GarminConnectClient {
       this.usedStoredTokens = false;
       console.warn('Stored Garmin tokens expired, logging in again');
       await withGarminRequest(this.throttle, () => this.client.login());
+      this.captureTokensAfterLogin();
       return withGarminRequest(this.throttle, fn);
     }
   }

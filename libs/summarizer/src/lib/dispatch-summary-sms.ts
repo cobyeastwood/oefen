@@ -1,4 +1,4 @@
-import { getUser, markSummarySmsSent } from '@oefen/database';
+import { getUser, isUserSyncEnabled, markSummarySmsSent } from '@oefen/database';
 import { sendSummarySms } from '@oefen/utils/notify';
 
 type SummaryRow = {
@@ -24,6 +24,10 @@ export async function dispatchSummarySms(
 
   try {
     const user = await getUser();
+    if (!isUserSyncEnabled(user.status)) {
+      console.warn(`User status is ${user.status}; skipping summary SMS`);
+      return;
+    }
     if (!user.phoneE164) {
       console.warn('User phone not set; skipping summary SMS');
       return;

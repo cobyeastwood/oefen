@@ -1,39 +1,29 @@
-import {
-  findCheckpointByGoalAndType,
-  getActiveGoalTip,
-  listCheckpointsForGoal,
-  listSessions,
-  updateGoalStatus,
-} from '@oefen/database';
+import { updateGoalStatus } from '@oefen/database';
 
-import { freezeCheckpoint, type FreezeResult } from '../freeze';
+import type { FreezeResult } from '../freeze';
+import { freezeCheckpoint } from '../freeze';
+import type { Detector, DetectorContext } from './detector';
 import { findGoalHit } from './find-goal-hit';
 import { checkpointWatermark } from './watermark';
 
 /**
  * Fires when the active goal’s target is actually met (race time or volume).
  */
-export async function detectGoalReached(
-  now = new Date(),
-): Promise<FreezeResult[]> {
-  const goal = await getActiveGoalTip();
+async function detect({
+  now,
+  goal,
+  checkpoints,
+  sessions,
+}: DetectorContext): Promise<FreezeResult[]> {
   if (!goal) {
     return [];
   }
 
-  const existing = await findCheckpointByGoalAndType(goal.id, 'goal_reached');
-  if (existing) {
+  if (checkpoints.some((checkpoint) => checkpoint.type === 'goal_reached')) {
     return [];
   }
 
-  const prior = await listCheckpointsForGoal(goal.id);
-  const watermark = checkpointWatermark(prior, goal);
-  const sessions = (await listSessions()).filter(
-    (session) =>
-      session.occurredAt.getTime() >= goal.effectiveFrom.getTime() &&
-      session.occurredAt.getTime() <= now.getTime(),
-  );
-
+  const watermark = checkpointWatermark(checkpoints, goal);
   const hit = findGoalHit({ goal, watermark, now, sessions });
   if (!hit) {
     return [];
@@ -53,3 +43,8 @@ export async function detectGoalReached(
   await updateGoalStatus(goal.id, 'achieved');
   return [result];
 }
+
+export const goalReachedDetector: Detector = {
+  id: 'goalReached',
+  detect,
+};

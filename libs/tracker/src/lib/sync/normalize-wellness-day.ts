@@ -12,12 +12,29 @@ type HeartRateFields = {
   maxHeartRate?: unknown;
 };
 
+/** Prefer sleepTimeSeconds; else derive from sleep start/end GMT timestamps. */
+function sleepSecondsFromDto(
+  sleepDto: Record<string, unknown> | undefined,
+): number | null {
+  const sleepFromDto = readNumber(sleepDto?.['sleepTimeSeconds']);
+  if (sleepFromDto != null && sleepFromDto > 0) {
+    return sleepFromDto;
+  }
+
+  const start = readNumber(sleepDto?.['sleepStartTimestampGMT']);
+  const end = readNumber(sleepDto?.['sleepEndTimestampGMT']);
+  if (start == null || end == null || end <= start) {
+    return null;
+  }
+
+  return positive(Math.round((end - start) / 1000));
+}
+
 /** Normalize raw Garmin day payloads into persisted Wellness fields. */
 export function normalizeWellnessDay(input: {
   calendarDate: Date;
   steps: number | null;
   sleepData: unknown;
-  sleepSecondsFallback: number | null;
   heartRate: unknown;
   weightPounds: number | null;
   hydrationOz: number | null;
@@ -28,12 +45,6 @@ export function normalizeWellnessDay(input: {
           .dailySleepDTO
       : undefined;
 
-  const sleepFromDto = readNumber(sleepDto?.['sleepTimeSeconds']);
-  const sleepSeconds =
-    sleepFromDto != null && sleepFromDto > 0
-      ? sleepFromDto
-      : input.sleepSecondsFallback;
-
   const hr =
     input.heartRate && typeof input.heartRate === 'object'
       ? (input.heartRate as HeartRateFields)
@@ -43,7 +54,7 @@ export function normalizeWellnessDay(input: {
     calendarDate: input.calendarDate,
     steps:
       input.steps != null && input.steps > 0 ? Math.round(input.steps) : null,
-    sleepSeconds: positive(sleepSeconds),
+    sleepSeconds: sleepSecondsFromDto(sleepDto),
     deepSleepSeconds: positive(readNumber(sleepDto?.['deepSleepSeconds'])),
     lightSleepSeconds: positive(readNumber(sleepDto?.['lightSleepSeconds'])),
     remSleepSeconds: positive(readNumber(sleepDto?.['remSleepSeconds'])),
@@ -54,14 +65,4 @@ export function normalizeWellnessDay(input: {
     weightPounds: positive(input.weightPounds),
     hydrationOz: positive(input.hydrationOz),
   };
-}
-
-/** Convert Garmin sleep duration hours/minutes into seconds. */
-export function sleepDurationToSeconds(duration: {
-  hours?: unknown;
-  minutes?: unknown;
-}): number | null {
-  const hours = readNumber(duration.hours) ?? 0;
-  const minutes = readNumber(duration.minutes) ?? 0;
-  return positive(Math.round(hours * 3600 + minutes * 60));
 }

@@ -5,7 +5,7 @@ import {
 } from '@oefen/garmin';
 
 import { toActivityDraft } from './to-activity-draft';
-import type { ActivityDraft, SyncGarminOptions } from './types';
+import type { ActivityDraft } from './types';
 
 export type FetchRunningActivitiesResult = {
   activities: ActivityDraft[];
@@ -15,14 +15,12 @@ export type FetchRunningActivitiesResult = {
 /** Pull Garmin activities and keep only mapped running sessions. */
 export async function fetchRunningActivities(
   client: GarminConnectClient,
-  options: SyncGarminOptions = {},
+  since: Date,
 ): Promise<FetchRunningActivitiesResult> {
-  // DB-known ids only — pull clones this set internally so ingest can still
-  // tell "already persisted" apart from "just fetched".
   const knownActivityIds = await listKnownActivityIds();
   const rawActivities = await pullGarminActivities(client, {
-    backfillCap: options.backfillCap,
     knownActivityIds,
+    since,
   });
 
   return {

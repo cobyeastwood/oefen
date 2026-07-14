@@ -1,33 +1,27 @@
-import {
-  findCheckpointByGoalAndType,
-  getActiveGoalTip,
-  listCheckpointsForGoal,
-} from '@oefen/database';
 import { deadlineProgress } from '@oefen/utils';
 
-import { freezeCheckpoint, type FreezeResult } from '../freeze';
+import type { FreezeResult } from '../freeze';
+import { freezeCheckpoint } from '../freeze';
 import {
   deadlineQuarterPeriodStart,
   shouldDetectDeadlineQuarter,
 } from './deadline-quarter-policy';
+import type { Detector, DetectorContext } from './detector';
 import { checkpointWatermark } from './watermark';
 
 /**
  * Fires once when remaining time to deadline first drops to ≤ 25% of total span.
  */
-export async function detectDeadlineQuarter(
-  now = new Date(),
-): Promise<FreezeResult[]> {
-  const goal = await getActiveGoalTip();
+async function detect({
+  now,
+  goal,
+  checkpoints,
+}: DetectorContext): Promise<FreezeResult[]> {
   if (!goal?.deadline) {
     return [];
   }
 
-  const existing = await findCheckpointByGoalAndType(
-    goal.id,
-    'deadline_quarter',
-  );
-  if (existing) {
+  if (checkpoints.some((checkpoint) => checkpoint.type === 'deadline_quarter')) {
     return [];
   }
 
@@ -36,8 +30,7 @@ export async function detectDeadlineQuarter(
     return [];
   }
 
-  const prior = await listCheckpointsForGoal(goal.id);
-  const lastEnd = checkpointWatermark(prior, goal);
+  const lastEnd = checkpointWatermark(checkpoints, goal);
   const periodStart = deadlineQuarterPeriodStart(
     lastEnd,
     goal.effectiveFrom,
@@ -51,3 +44,8 @@ export async function detectDeadlineQuarter(
     }),
   ];
 }
+
+export const deadlineQuarterDetector: Detector = {
+  id: 'deadlineQuarter',
+  detect,
+};

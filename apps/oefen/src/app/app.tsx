@@ -304,7 +304,7 @@ export function App() {
     setError(null);
     setIsSavingPhone(true);
     try {
-      const result = await updateUser(phone.trim() || null);
+      const result = await updateUser({ phoneE164: phone.trim() || null });
       setPhoneE164(result.user.phoneE164);
       setPhone(result.user.phoneE164 ?? '');
       persistCache({ phoneE164: result.user.phoneE164 });

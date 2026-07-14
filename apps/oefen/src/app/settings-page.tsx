@@ -24,7 +24,7 @@ export function SettingsPage({ phoneE164, known, onSaved }: SettingsPageProps) {
     setError(null);
     setIsSaving(true);
     try {
-      const result = await updateUser(draft.trim() || null);
+      const result = await updateUser({ phoneE164: draft.trim() || null });
       const next = result.user.phoneE164 ?? '';
       setDraft(next);
       onSaved(result.user.phoneE164);

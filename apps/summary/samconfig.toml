@@ -1,7 +1,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "oefen-summarizer"
+stack_name = "oefen-summary"
 
 [default.build.parameters]
 cached = true
@@ -12,6 +12,6 @@ template_file = "template.yaml"
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = false
 resolve_s3 = true
-s3_prefix = "oefen-summarizer"
+s3_prefix = "oefen-summary"
 region = "us-west-1"
 fail_on_empty_changeset = false

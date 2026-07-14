@@ -7,21 +7,26 @@ Parameters:
     Type: String
     Default: /oefen/worker
     Description: SSM Parameter Store prefix for worker configuration
+  SummarizerFunctionName:
+    Type: String
+    Default: oefen-summary
+    Description: Summary Lambda to invoke when a new checkpoint is frozen
 
 Globals:
   Function:
-    Timeout: 120
+    Timeout: 300
     Runtime: nodejs22.x
     MemorySize: 256
     Environment:
       Variables:
         SSM_PREFIX: !Ref SsmPrefix
+        SUMMARIZER_FUNCTION_NAME: !Ref SummarizerFunctionName
 
 Resources:
   WorkerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: oefen-garmin-worker
+      FunctionName: oefen-worker
       Handler: main.handler
       CodeUri: ../../dist/apps/worker-lambda
       Description: Daily Garmin sync via syncGarmin (sessions, tags, checkpoints)
@@ -36,6 +41,9 @@ Resources:
             - Effect: Allow
               Action: ssm:PutParameter
               Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmPrefix}/garmin-tokens'
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${SummarizerFunctionName}'
 
   WorkerScheduleRole:
     Type: AWS::IAM::Role
@@ -59,7 +67,7 @@ Resources:
   WorkerSchedule:
     Type: AWS::Scheduler::Schedule
     Properties:
-      Name: oefen-garmin-worker-daily
+      Name: oefen-worker-daily
       Description: Sync Garmin data once per day at 9:00 AM US Eastern
       ScheduleExpression: cron(0 9 * * ? *)
       ScheduleExpressionTimezone: America/New_York

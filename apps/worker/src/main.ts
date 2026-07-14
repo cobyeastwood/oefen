@@ -1,4 +1,5 @@
 import type { Handler } from 'aws-lambda';
+import { getUser, isUserSyncEnabled } from '@oefen/database';
 import { syncGarmin } from '@oefen/tracker';
 
 import { loadWorkerConfig, persistGarminTokens } from './lib/load-config';
@@ -10,11 +11,20 @@ export const handler: Handler = async (event) => {
   try {
     await loadWorkerConfig();
 
-    const result = await syncGarmin();
-
-    if (process.env['GARMIN_TOKENS'] && process.env['SSM_PREFIX']) {
-      await persistGarminTokens(process.env['GARMIN_TOKENS']);
+    const user = await getUser();
+    if (!isUserSyncEnabled(user.status)) {
+      console.log(`User status is ${user.status}; skipping Garmin sync`);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          ok: true,
+          skipped: true,
+          reason: user.status,
+        }),
+      };
     }
+
+    const result = await syncGarmin(user);
 
     return {
       statusCode: 200,
@@ -22,12 +32,25 @@ export const handler: Handler = async (event) => {
     };
   } catch (error) {
     console.error('Worker error:', error);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ ok: false, error: 'Worker execution failed' }),
-    };
+    // Rethrow so EventBridge Scheduler retries later (returning 500 still
+    // counts as a successful invoke and skips the schedule retry policy).
+    throw error;
   } finally {
+    // Write tokens to SSM only after a password login this run — not when we
+    // merely reused existing SSM tokens.
+    if (
+      process.env['GARMIN_TOKENS_SHOULD_PERSIST'] === '1' &&
+      process.env['GARMIN_TOKENS'] &&
+      process.env['SSM_PREFIX']
+    ) {
+      try {
+        await persistGarminTokens(process.env['GARMIN_TOKENS']);
+        console.log('Persisted Garmin tokens to SSM');
+      } catch (persistError) {
+        console.error('Failed to persist Garmin tokens:', persistError);
+      }
+    }
+
     await disconnectPrisma();
   }
 };

@@ -27,6 +27,3 @@ export type WellnessDayPayload = {
   hydrationOz: number | null;
 };
 
-export type SyncGarminOptions = {
-  backfillCap?: number;
-};
