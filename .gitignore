@@ -41,7 +41,11 @@ Thumbs.db
 .nx/migrate-runs
 
 .env
+.env*.local
+.vercel
+
 apps/worker/.aws-sam
 .aws-sam
+apps/web/api/
 
 vite.config.*.timestamp*

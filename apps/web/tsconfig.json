@@ -12,9 +12,8 @@
   "files": [],
   "include": [],
   "references": [
-    {
-      "path": "./tsconfig.app.json"
-    }
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.api.json" }
   ],
   "extends": "../../tsconfig.base.json"
 }

@@ -1,14 +1,14 @@
 {
-  "name": "api",
+  "name": "api-core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
-  "projectType": "application",
-  "tags": ["type:app", "scope:api"],
+  "sourceRoot": "libs/api-core/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:api"],
   "targets": {
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm exec tsx apps/api/src/server.ts",
+        "command": "pnpm exec tsx libs/api-core/src/dev.ts",
         "cwd": "."
       }
     }

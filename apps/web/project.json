@@ -1,0 +1,44 @@
+{
+  "name": "web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/web/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:web"],
+  "targets": {
+    "build-api": {
+      "executor": "@nx/esbuild:esbuild",
+      "dependsOn": ["database:prisma-generate"],
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "main": "apps/web/src/handler.ts",
+        "outputPath": "apps/web/api",
+        "outputFileName": "index.js",
+        "tsConfig": "apps/web/tsconfig.api.json",
+        "platform": "node",
+        "target": "node20",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": false,
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "sourcemap": false,
+          "footer": {
+            "js": "module.exports = module.exports.default;"
+          }
+        }
+      },
+      "configurations": {
+        "development": {
+          "esbuildOptions": {
+            "sourcemap": true,
+            "footer": {
+              "js": "module.exports = module.exports.default;"
+            }
+          }
+        },
+        "production": {}
+      }
+    }
+  }
+}

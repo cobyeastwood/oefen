@@ -4,7 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../node_modules/.vite/apps/oefen',
+  cacheDir: '../../node_modules/.vite/apps/web',
   appType: 'spa',
   server: {
     port: 4200,
@@ -19,7 +19,7 @@ export default defineConfig(() => ({
   },
   plugins: [react(), nxViteTsPaths()],
   build: {
-    outDir: '../../dist/apps/oefen',
+    outDir: '../../dist/apps/web',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {

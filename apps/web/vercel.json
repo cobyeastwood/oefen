@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && pnpm exec nx run-many -t build -t build-api -p web",
+  "outputDirectory": "../../dist/apps/web",
+  "ignoreCommand": "npx nx-ignore web",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

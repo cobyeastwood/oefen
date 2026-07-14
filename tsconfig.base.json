@@ -14,6 +14,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
+      "@oefen/api-core": ["./libs/api-core/src/index.ts"],
       "@oefen/database": ["./libs/database/src/index.ts"],
       "@oefen/utils": ["./libs/utils/src/index.ts"],
       "@oefen/utils/notify": ["./libs/utils/src/notify/index.ts"],
