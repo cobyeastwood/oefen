@@ -5,6 +5,7 @@
   "outputDirectory": "../../dist/apps/web",
   "ignoreCommand": "cd ../.. && npx nx-ignore web",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/:path+", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

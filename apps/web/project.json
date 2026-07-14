@@ -13,7 +13,7 @@
       "options": {
         "main": "apps/web/src/handler.ts",
         "outputPath": "apps/web/api",
-        "outputFileName": "[[...path]].js",
+        "outputFileName": "index.js",
         "tsConfig": "apps/web/tsconfig.api.json",
         "platform": "node",
         "target": "node20",
