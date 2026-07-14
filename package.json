@@ -32,7 +32,6 @@
     "@swc/helpers": "~0.5.18",
     "@types/aws-lambda": "^8.10.162",
     "@types/node": "^22.0.0",
-    "@types/pg": "^8.20.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
@@ -53,23 +52,16 @@
     "@aws-sdk/client-ssm": "^3.1085.0",
     "@hono/node-server": "^2.0.8",
     "@mastra/core": "^0.20.2",
-    "@prisma/adapter-pg": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "dotenv": "^17.2.0",
     "garmin-connect": "^1.6.2",
     "hono": "^4.12.30",
-    "pg": "^8.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "twilio": "^6.0.2",
     "zod": "^3.25.76"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "@prisma/engines",
-      "esbuild",
-      "prisma"
-    ]
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines", "esbuild", "prisma"]
   }
 }

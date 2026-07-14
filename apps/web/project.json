@@ -9,7 +9,6 @@
       "executor": "@nx/esbuild:esbuild",
       "dependsOn": ["database:prisma-generate"],
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
       "options": {
         "main": "apps/web/src/handler.ts",
         "outputPath": "apps/web/api",
@@ -20,26 +19,10 @@
         "format": ["cjs"],
         "bundle": true,
         "thirdParty": false,
-        "generatePackageJson": false,
         "esbuildOptions": {
-          "sourcemap": false,
-          "outExtension": {
-            ".js": ".js"
-          },
-          "footer": {
-            "js": "module.exports = module.exports.default;"
-          }
+          "outExtension": { ".js": ".js" },
+          "footer": { "js": "module.exports = module.exports.default;" }
         }
-      },
-      "configurations": {
-        "development": {
-          "esbuildOptions": {
-            "sourcemap": true,
-            "outExtension": { ".js": ".js" },
-            "footer": { "js": "module.exports = module.exports.default;" }
-          }
-        },
-        "production": {}
       }
     }
   }
