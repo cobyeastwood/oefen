@@ -11,6 +11,7 @@
   "targets": {
     "prisma-generate": {
       "executor": "nx:run-commands",
+      "cache": false,
       "options": {
         "command": "pnpm exec prisma generate --schema=libs/shared/database/prisma/schema.prisma",
         "cwd": "."

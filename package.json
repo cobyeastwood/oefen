@@ -4,6 +4,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate --schema=libs/shared/database/prisma/schema.prisma",
     "worker:build": "nx run worker:build",
     "worker:invoke": "nx run worker:invoke",
     "worker:deploy": "nx run worker:deploy",
