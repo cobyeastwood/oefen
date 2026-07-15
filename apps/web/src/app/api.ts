@@ -1,4 +1,4 @@
-import type { GoalRevision, SetGoalInput } from '@oefen/tracker';
+import type { GoalRevision, SetGoalInput } from '@oefen/tracker-core';
 import type { DistancePeriod, GoalType } from '@oefen/utils';
 
 export type User = {

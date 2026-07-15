@@ -1,6 +1,6 @@
 import type { Handler } from 'aws-lambda';
 import { getUser, isUserSyncEnabled } from '@oefen/database';
-import { syncGarmin } from '@oefen/tracker';
+import { syncGarmin } from '@oefen/tracker-sync';
 
 import { loadWorkerConfig, persistGarminTokens } from './lib/load-config';
 import { disconnectPrisma } from './lib/prisma';

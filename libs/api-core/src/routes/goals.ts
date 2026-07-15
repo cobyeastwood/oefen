@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { getActiveGoalTip } from '@oefen/database';
-import { parseSetGoalInput, setGoal } from '@oefen/tracker';
+import { parseSetGoalInput, setGoal } from '@oefen/tracker-core';
 
 export const goalsRoutes = new Hono();
 

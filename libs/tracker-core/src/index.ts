@@ -1,5 +1,3 @@
-export { syncGarmin } from './lib/sync';
-
 export {
   setGoal,
   parseSetGoalInput,

@@ -1,14 +1,14 @@
 {
-  "name": "utils",
+  "name": "tracker-sync",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/utils/src",
+  "sourceRoot": "libs/tracker-sync/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:utils", "bundle:api"],
+  "tags": ["type:lib", "scope:tracker-sync", "bundle:worker"],
   "targets": {
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm exec vitest run --config libs/utils/vitest.config.ts",
+        "command": "pnpm exec vitest run --config libs/tracker-sync/vitest.config.ts",
         "cwd": "."
       }
     }

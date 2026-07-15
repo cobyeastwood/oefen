@@ -19,7 +19,8 @@
       "@oefen/utils": ["./libs/utils/src/index.ts"],
       "@oefen/utils/notify": ["./libs/utils/src/notify/index.ts"],
       "@oefen/garmin": ["./libs/garmin/src/index.ts"],
-      "@oefen/tracker": ["./libs/tracker/src/index.ts"],
+      "@oefen/tracker-core": ["./libs/tracker-core/src/index.ts"],
+      "@oefen/tracker-sync": ["./libs/tracker-sync/src/index.ts"],
       "@oefen/summarizer": ["./libs/summarizer/src/index.ts"]
     }
   },
