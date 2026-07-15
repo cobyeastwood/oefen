@@ -41,7 +41,8 @@ export class GarminConnectClient {
       console.log('Using Garmin tokens from SSM');
     } else {
       console.log('No stored Garmin tokens, logging in');
-      await withGarminRequest(this.throttle, () => this.client.login());
+      // Single login attempt — do not retry on 429.
+      await this.client.login();
       this.captureTokensAfterLogin();
     }
 
@@ -96,7 +97,7 @@ export class GarminConnectClient {
 
       this.usedStoredTokens = false;
       console.warn('Stored Garmin tokens expired, logging in again');
-      await withGarminRequest(this.throttle, () => this.client.login());
+      await this.client.login();
       this.captureTokensAfterLogin();
       return withGarminRequest(this.throttle, fn);
     }
@@ -111,7 +112,7 @@ export function createGarminConnectClientFromEnv(): GarminConnectClient {
     throw new Error('GARMIN_USERNAME and GARMIN_PASSWORD are required');
   }
 
-  const tokensJson = process.env['GARMIN_TOKENS'];
+  const tokensJson = process.env['GARMIN_TOKENS']?.trim();
   const tokens = tokensJson
     ? (JSON.parse(tokensJson) as GarminTokens)
     : undefined;

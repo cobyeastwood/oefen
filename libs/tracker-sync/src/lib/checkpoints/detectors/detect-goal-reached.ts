@@ -14,6 +14,7 @@ async function detect({
   goal,
   checkpoints,
   sessions,
+  invokeSummarizer,
 }: DetectorContext): Promise<FreezeResult[]> {
   if (!goal) {
     return [];
@@ -37,6 +38,7 @@ async function detect({
       goalId: goal.id,
       goal,
       sessionId: hit.sessionId,
+      invokeSummarizer,
     },
   );
 

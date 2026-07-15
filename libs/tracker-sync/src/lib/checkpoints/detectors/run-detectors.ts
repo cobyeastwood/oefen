@@ -5,6 +5,7 @@ import {
 } from '@oefen/database';
 
 import type { FreezeResult } from '../freeze';
+import type { SummarizerInvoker } from '../invoke-summarizer';
 import { deadlineQuarterDetector } from './detect-deadline-quarter';
 import { goalReachedDetector } from './detect-goal-reached';
 import { weeklySinceGoalDetector } from './detect-weekly-since-goal';
@@ -22,11 +23,24 @@ export type RunDetectorsResult = {
   createdCount: number;
 };
 
-async function buildDetectorContext(now: Date): Promise<DetectorContext> {
+export type RunDetectorsOptions = {
+  invokeSummarizer?: SummarizerInvoker;
+};
+
+async function buildDetectorContext(
+  now: Date,
+  options: RunDetectorsOptions = {},
+): Promise<DetectorContext> {
   const goal = await getActiveGoalTip();
 
   if (!goal) {
-    return { now, goal: null, checkpoints: [], sessions: [] };
+    return {
+      now,
+      goal: null,
+      checkpoints: [],
+      sessions: [],
+      invokeSummarizer: options.invokeSummarizer,
+    };
   }
 
   const [checkpoints, allSessions] = await Promise.all([
@@ -42,13 +56,20 @@ async function buildDetectorContext(now: Date): Promise<DetectorContext> {
       session.occurredAt.getTime() <= to,
   );
 
-  return { now, goal, checkpoints, sessions };
+  return {
+    now,
+    goal,
+    checkpoints,
+    sessions,
+    invokeSummarizer: options.invokeSummarizer,
+  };
 }
 
 export async function runDetectors(
   now = new Date(),
+  options: RunDetectorsOptions = {},
 ): Promise<RunDetectorsResult> {
-  const ctx = await buildDetectorContext(now);
+  const ctx = await buildDetectorContext(now, options);
 
   const results: Record<string, FreezeResult[]> = {};
   let createdCount = 0;

@@ -5,6 +5,31 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:tracker-sync", "bundle:worker"],
   "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/tracker-sync",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": false,
+        "external": [
+          "@oefen/database",
+          "@oefen/utils",
+          "@oefen/garmin",
+          "@oefen/summarizer"
+        ],
+        "main": "libs/tracker-sync/src/index.ts",
+        "tsConfig": "libs/tracker-sync/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      }
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

@@ -1,4 +1,5 @@
 import { runDetectors } from '../checkpoints/detectors';
+import type { SummarizerInvoker } from '../checkpoints/invoke-summarizer';
 import { connectGarmin } from './connect-garmin';
 import { fetchRunningActivities } from './fetch-running-activities';
 import { ingestActivities } from './ingest-activities';
@@ -8,9 +9,18 @@ type SyncUser = {
   createdAt: Date;
 };
 
+type SyncGarminOptions = {
+  /** Called right after Garmin auth (token load or password login). */
+  onAuthenticated?: () => void | Promise<void>;
+  /** App-supplied summarizer kickoff (e.g. invoke summary Lambda). */
+  invokeSummarizer?: SummarizerInvoker;
+};
+
 /** Connect → fetch runs → ingest sessions → wellness → detectors. */
-export async function syncGarmin(user: SyncUser) {
+export async function syncGarmin(user: SyncUser, options?: SyncGarminOptions) {
   const client = await connectGarmin();
+  await options?.onAuthenticated?.();
+
   const { activities, knownActivityIds } = await fetchRunningActivities(
     client,
     user.createdAt,
@@ -20,7 +30,9 @@ export async function syncGarmin(user: SyncUser) {
     knownActivityIds,
   );
   const wellness = await syncWellness(client, activities);
-  const detectors = await runDetectors();
+  const detectors = await runDetectors(new Date(), {
+    invokeSummarizer: options?.invokeSummarizer,
+  });
 
   return {
     fetched: activities.length,

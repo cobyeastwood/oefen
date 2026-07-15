@@ -9,6 +9,7 @@ import type { Detector, DetectorContext } from './detector';
 async function detect({
   now,
   goal,
+  invokeSummarizer,
 }: DetectorContext): Promise<FreezeResult[]> {
   if (!goal) {
     return [];
@@ -24,7 +25,7 @@ async function detect({
       'weekly_since_goal',
       periodStart,
       periodEnd,
-      { goalId: goal.id, goal },
+      { goalId: goal.id, goal, invokeSummarizer },
     );
     if (result.created) {
       results.push(result);

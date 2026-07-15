@@ -16,6 +16,7 @@ async function detect({
   now,
   goal,
   checkpoints,
+  invokeSummarizer,
 }: DetectorContext): Promise<FreezeResult[]> {
   if (!goal?.deadline) {
     return [];
@@ -41,6 +42,7 @@ async function detect({
     await freezeCheckpoint('deadline_quarter', periodStart, now, {
       goalId: goal.id,
       goal,
+      invokeSummarizer,
     }),
   ];
 }

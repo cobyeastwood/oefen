@@ -1,3 +1,3 @@
-export * from './goal';
-export * from './parse';
-export * from './wellness';
+export * from './lib/goal';
+export * from './lib/parse';
+export * from './lib/wellness';

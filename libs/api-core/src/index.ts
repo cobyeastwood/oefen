@@ -1,3 +1,3 @@
-import './env';
+import './lib/env';
 
-export { app } from './app';
+export { app } from './lib/app';

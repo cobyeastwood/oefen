@@ -5,6 +5,26 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:tracker-core", "bundle:api"],
   "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/tracker-core",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": false,
+        "external": ["@oefen/database", "@oefen/utils"],
+        "main": "libs/tracker-core/src/index.ts",
+        "tsConfig": "libs/tracker-core/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      }
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

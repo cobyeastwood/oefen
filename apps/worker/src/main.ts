@@ -2,8 +2,28 @@ import type { Handler } from 'aws-lambda';
 import { getUser, isUserSyncEnabled } from '@oefen/database';
 import { syncGarmin } from '@oefen/tracker-sync';
 
+import { invokeSummarizer } from './lib/invoke-summarizer';
 import { loadWorkerConfig, persistGarminTokens } from './lib/load-config';
 import { disconnectPrisma } from './lib/prisma';
+
+/** Persist tokens to SSM after a password login this run. */
+async function persistNewGarminTokens(): Promise<void> {
+  if (
+    process.env['GARMIN_TOKENS_SHOULD_PERSIST'] !== '1' ||
+    !process.env['GARMIN_TOKENS'] ||
+    !process.env['SSM_PREFIX']
+  ) {
+    return;
+  }
+
+  try {
+    await persistGarminTokens(process.env['GARMIN_TOKENS']);
+    process.env['GARMIN_TOKENS_SHOULD_PERSIST'] = '0';
+    console.log('Persisted Garmin tokens to SSM');
+  } catch (persistError) {
+    console.error('Failed to persist Garmin tokens:', persistError);
+  }
+}
 
 export const handler: Handler = async (event) => {
   console.log('Received event:', JSON.stringify(event));
@@ -24,7 +44,11 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const result = await syncGarmin(user);
+    const result = await syncGarmin(user, {
+      // Save tokens as soon as login succeeds, before the rest of sync.
+      onAuthenticated: persistNewGarminTokens,
+      invokeSummarizer,
+    });
 
     return {
       statusCode: 200,
@@ -36,21 +60,8 @@ export const handler: Handler = async (event) => {
     // counts as a successful invoke and skips the schedule retry policy).
     throw error;
   } finally {
-    // Write tokens to SSM only after a password login this run — not when we
-    // merely reused existing SSM tokens.
-    if (
-      process.env['GARMIN_TOKENS_SHOULD_PERSIST'] === '1' &&
-      process.env['GARMIN_TOKENS'] &&
-      process.env['SSM_PREFIX']
-    ) {
-      try {
-        await persistGarminTokens(process.env['GARMIN_TOKENS']);
-        console.log('Persisted Garmin tokens to SSM');
-      } catch (persistError) {
-        console.error('Failed to persist Garmin tokens:', persistError);
-      }
-    }
-
+    // Safety net if auth refreshed mid-sync after onAuthenticated.
+    await persistNewGarminTokens();
     await disconnectPrisma();
   }
 };

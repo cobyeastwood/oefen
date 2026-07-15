@@ -17,7 +17,7 @@
       "@oefen/api-core": ["./libs/api-core/src/index.ts"],
       "@oefen/database": ["./libs/database/src/index.ts"],
       "@oefen/utils": ["./libs/utils/src/index.ts"],
-      "@oefen/utils/notify": ["./libs/utils/src/notify/index.ts"],
+      "@oefen/utils/notify": ["./libs/utils/src/lib/notify/index.ts"],
       "@oefen/garmin": ["./libs/garmin/src/index.ts"],
       "@oefen/tracker-core": ["./libs/tracker-core/src/index.ts"],
       "@oefen/tracker-sync": ["./libs/tracker-sync/src/index.ts"],

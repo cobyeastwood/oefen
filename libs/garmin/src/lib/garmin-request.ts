@@ -1,7 +1,8 @@
 const REQUEST_DELAY_MS = 1_500;
-const MAX_RETRIES = 6;
+/** Retries for data API calls only — never used for password login. */
+const MAX_RETRIES = 2;
 const RETRY_BASE_MS = 5_000;
-const RETRY_MAX_MS = 60_000;
+const RETRY_MAX_MS = 30_000;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

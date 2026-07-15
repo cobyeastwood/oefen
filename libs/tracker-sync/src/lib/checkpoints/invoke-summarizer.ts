@@ -1,28 +1,28 @@
-import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
-
 import { generateSummary } from '@oefen/summarizer';
 
-const lambda = new LambdaClient({});
+export type SummarizerInvokeResult = {
+  invoked: 'lambda' | 'local';
+  checkpointId: string;
+  skipped?: boolean;
+};
 
-export async function invokeSummarizer(checkpointId: string) {
-  const functionName = process.env['SUMMARIZER_FUNCTION_NAME'];
+export type SummarizerInvoker = (
+  checkpointId: string,
+) => Promise<SummarizerInvokeResult>;
 
-  if (functionName) {
-    await lambda.send(
-      new InvokeCommand({
-        FunctionName: functionName,
-        InvocationType: 'Event',
-        Payload: Buffer.from(JSON.stringify({ checkpointId })),
-      }),
-    );
-    return { invoked: 'lambda' as const, checkpointId };
-  }
-
+/** In-process summarizer (local/dev). Apps supply a remote invoker when needed. */
+export async function invokeSummarizer(
+  checkpointId: string,
+): Promise<SummarizerInvokeResult> {
   try {
     const result = await generateSummary(checkpointId);
-    return { invoked: 'local' as const, ...result };
+    return {
+      invoked: 'local',
+      checkpointId,
+      skipped: result.skipped,
+    };
   } catch (error) {
     console.warn('Local summarizer failed:', error);
-    return { invoked: 'local' as const, skipped: true, checkpointId };
+    return { invoked: 'local', skipped: true, checkpointId };
   }
 }

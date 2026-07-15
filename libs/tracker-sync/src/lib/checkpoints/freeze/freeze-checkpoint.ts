@@ -1,7 +1,7 @@
 import type { CheckpointType } from '@prisma/client';
 import { findCheckpointByPeriod, listSessionsInPeriod } from '@oefen/database';
 
-import { invokeSummarizer } from '../invoke-summarizer';
+import { invokeSummarizer as invokeSummarizerLocal } from '../invoke-summarizer';
 import { createFrozenCheckpoint } from './create-frozen-checkpoint';
 import { resolveFreezeGoal } from './resolve-freeze-goal';
 import type { FreezeAttachments, FreezeResult } from './types';
@@ -35,7 +35,8 @@ export async function freezeCheckpoint(
   });
 
   if (created.created && created.checkpointId) {
-    await invokeSummarizer(created.checkpointId);
+    const summarize = attachments.invokeSummarizer ?? invokeSummarizerLocal;
+    await summarize(created.checkpointId);
   }
 
   return created;
