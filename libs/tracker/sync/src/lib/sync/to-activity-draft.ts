@@ -20,12 +20,21 @@ const RUNNING_TYPE_KEYS = new Set([
   'virtual_running',
 ]);
 
-/** Map a Garmin activity payload to a running ActivityDraft, or null if skipped. */
-export function toActivityDraft(
+/** True when the Garmin typeKey is a supported running sport. */
+export function isRunningActivity(activity: GarminActivityPayload): boolean {
+  const typeKey = activity.activityType?.typeKey;
+  return !!typeKey && RUNNING_TYPE_KEYS.has(typeKey);
+}
+
+/**
+ * Map a Garmin activity payload to an ActivityDraft, or null if start time
+ * cannot be parsed. Caller is responsible for running-type filtering.
+ */
+export function mapActivityDraft(
   activity: GarminActivityPayload,
 ): ActivityDraft | null {
   const typeKey = activity.activityType?.typeKey;
-  if (!typeKey || !RUNNING_TYPE_KEYS.has(typeKey)) {
+  if (!typeKey) {
     return null;
   }
 
@@ -50,4 +59,14 @@ export function toActivityDraft(
     feel: readString(raw['selfEvaluationFeel'] ?? raw['feel']),
     title,
   };
+}
+
+/** Map a Garmin activity payload to a running ActivityDraft, or null if skipped. */
+export function toActivityDraft(
+  activity: GarminActivityPayload,
+): ActivityDraft | null {
+  if (!isRunningActivity(activity)) {
+    return null;
+  }
+  return mapActivityDraft(activity);
 }

@@ -6,27 +6,27 @@ import type { Detector, DetectorContext } from './detector';
 import { findGoalHit } from './find-goal-hit';
 import { checkpointWatermark } from './watermark';
 
-/**
- * Fires when the active goal’s target is actually met (race time or volume).
- */
-async function detect({
-  now,
-  goal,
-  checkpoints,
-  sessions,
-  invokeSummarizer,
-}: DetectorContext): Promise<FreezeResult[]> {
+/** Pure decision: whether the active goal has been met and where. */
+export function decideGoalReached(ctx: DetectorContext) {
+  const { now, goal, checkpoints, sessions } = ctx;
   if (!goal) {
-    return [];
+    return null;
   }
 
   if (checkpoints.some((checkpoint) => checkpoint.type === 'goal_reached')) {
-    return [];
+    return null;
   }
 
   const watermark = checkpointWatermark(checkpoints, goal);
-  const hit = findGoalHit({ goal, watermark, now, sessions });
-  if (!hit) {
+  return findGoalHit({ goal, watermark, now, sessions });
+}
+
+/**
+ * Fires when the active goal’s target is actually met (race time or volume).
+ */
+async function detect(ctx: DetectorContext): Promise<FreezeResult[]> {
+  const hit = decideGoalReached(ctx);
+  if (!hit || !ctx.goal) {
     return [];
   }
 
@@ -35,14 +35,14 @@ async function detect({
     hit.periodStart,
     hit.periodEnd,
     {
-      goalId: goal.id,
-      goal,
+      goalId: ctx.goal.id,
+      goal: ctx.goal,
       sessionId: hit.sessionId,
-      invokeSummarizer,
+      invokeSummarizer: ctx.invokeSummarizer,
     },
   );
 
-  await updateGoalStatus(goal.id, 'achieved');
+  await updateGoalStatus(ctx.goal.id, 'achieved');
   return [result];
 }
 

@@ -8,7 +8,7 @@ import {
 import { findRaceGoalHit } from './find-race-goal-hit';
 import { findVolumeGoalHit } from './find-volume-goal-hit';
 
-export type GoalHit = {
+type GoalHit = {
   periodStart: Date;
   periodEnd: Date;
   sessionId: string | null;

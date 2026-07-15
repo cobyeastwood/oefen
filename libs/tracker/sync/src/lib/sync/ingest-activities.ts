@@ -1,5 +1,6 @@
 import { findMergeCandidate } from '@oefen/shared/database';
 
+import { filterUnknownActivities } from './filter-unknown-activities';
 import {
   createNewSession,
   mergeIntoExistingSession,
@@ -35,7 +36,7 @@ async function ingestActivity(
   return true;
 }
 
-export type IngestActivitiesResult = {
+type IngestActivitiesResult = {
   ingested: number;
   skipped: number;
 };
@@ -45,9 +46,10 @@ export async function ingestActivities(
   activities: ActivityDraft[],
   knownActivityIds: Set<number>,
 ): Promise<IngestActivitiesResult> {
+  const unknown = filterUnknownActivities(activities, knownActivityIds);
   let ingested = 0;
 
-  for (const activity of activities) {
+  for (const activity of unknown) {
     if (await ingestActivity(activity, knownActivityIds)) {
       ingested += 1;
     }

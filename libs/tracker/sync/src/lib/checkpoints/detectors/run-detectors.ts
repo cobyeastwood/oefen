@@ -9,6 +9,7 @@ import type { SummarizerInvoker } from '../invoke-summarizer';
 import { deadlineQuarterDetector } from './detect-deadline-quarter';
 import { goalReachedDetector } from './detect-goal-reached';
 import { weeklySinceGoalDetector } from './detect-weekly-since-goal';
+import { filterSessionsInWindow } from './filter-sessions-in-window';
 import type { Detector, DetectorContext } from './detector';
 
 /** Ordered registry — append new Detector implementations here. */
@@ -18,12 +19,12 @@ export const DETECTORS: readonly Detector[] = [
   goalReachedDetector,
 ];
 
-export type RunDetectorsResult = {
+type RunDetectorsResult = {
   results: Record<string, FreezeResult[]>;
   createdCount: number;
 };
 
-export type RunDetectorsOptions = {
+type RunDetectorsOptions = {
   invokeSummarizer?: SummarizerInvoker;
 };
 
@@ -48,12 +49,10 @@ async function buildDetectorContext(
     listSessions(),
   ]);
 
-  const from = goal.effectiveFrom.getTime();
-  const to = now.getTime();
-  const sessions = allSessions.filter(
-    (session) =>
-      session.occurredAt.getTime() >= from &&
-      session.occurredAt.getTime() <= to,
+  const sessions = filterSessionsInWindow(
+    allSessions,
+    goal.effectiveFrom,
+    now,
   );
 
   return {

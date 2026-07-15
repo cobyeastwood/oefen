@@ -2,7 +2,7 @@ import { addMonths, MS_WEEK, type DistancePeriod } from '@oefen/shared/utils';
 
 type VolumeSession = { distanceM: number; occurredAt: Date };
 
-export type VolumeGoalHit = {
+type VolumeGoalHit = {
   periodStart: Date;
   periodEnd: Date;
 };

@@ -3,7 +3,7 @@ import { getActiveGoalAt, serializeGoalSnapshot } from '@oefen/shared/database';
 
 import type { FreezeAttachments } from './types';
 
-export type ResolvedFreezeGoal = {
+type ResolvedFreezeGoal = {
   goal: Goal | null;
   goalId: string | null;
   goalSnapshot: ReturnType<typeof serializeGoalSnapshot> | null;

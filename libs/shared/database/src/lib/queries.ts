@@ -220,17 +220,28 @@ export function intervalsOverlap(
   return bStart.getTime() <= aHi && bEnd.getTime() >= aLo;
 }
 
-export async function findMergeCandidate(input: {
+type MergeCandidateInput = {
   sport: string;
   occurredAt: Date;
   durationS: number;
   gapMs?: number;
-}) {
+};
+
+type MergeCandidateSession = {
+  sport: string;
+  occurredAt: Date;
+  durationS: number;
+};
+
+/** Pure pick: first same-sport session overlapping the incoming window. */
+export function pickMergeCandidate<T extends MergeCandidateSession>(
+  sessions: T[],
+  input: MergeCandidateInput,
+): T | null {
   const gapMs = input.gapMs ?? 2 * 60 * 60 * 1000;
   const incomingEnd = new Date(
     input.occurredAt.getTime() + input.durationS * 1000,
   );
-  const sessions = await listSessions();
 
   for (const session of sessions) {
     if (session.sport !== input.sport) {
@@ -251,6 +262,11 @@ export async function findMergeCandidate(input: {
   }
 
   return null;
+}
+
+export async function findMergeCandidate(input: MergeCandidateInput) {
+  const sessions = await listSessions();
+  return pickMergeCandidate(sessions, input);
 }
 
 export async function listActiveGoals() {

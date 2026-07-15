@@ -1,6 +1,6 @@
 import { MS_WEEK } from '@oefen/shared/utils';
 
-export type WeeklyPeriod = {
+type WeeklyPeriod = {
   periodStart: Date;
   periodEnd: Date;
 };

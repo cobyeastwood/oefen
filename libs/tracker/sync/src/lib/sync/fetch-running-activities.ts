@@ -1,13 +1,11 @@
 import { listKnownActivityIds } from '@oefen/shared/database';
-import {
-  pullActivities,
-  type GarminConnectClient,
-} from '@oefen/garmin';
+import { pullActivities, type GarminConnectClient } from '@oefen/garmin';
 
-import { toActivityDraft } from './to-activity-draft';
+import { filterPulledActivities } from './filter-pulled-activities';
+import { isRunningActivity, mapActivityDraft } from './to-activity-draft';
 import type { ActivityDraft } from './types';
 
-export type FetchRunningActivitiesResult = {
+type FetchRunningActivitiesResult = {
   activities: ActivityDraft[];
   knownActivityIds: Set<number>;
 };
@@ -18,14 +16,18 @@ export async function fetchRunningActivities(
   since: Date,
 ): Promise<FetchRunningActivitiesResult> {
   const knownActivityIds = await listKnownActivityIds();
-  const rawActivities = await pullActivities(client, {
+  const rawActivities = await pullActivities(client);
+  const filteredActivities = filterPulledActivities(rawActivities, {
     knownActivityIds,
     since,
   });
 
   return {
-    activities: rawActivities.flatMap((activity) => {
-      const draft = toActivityDraft(activity);
+    activities: filteredActivities.flatMap((activity) => {
+      if (!isRunningActivity(activity)) {
+        return [];
+      }
+      const draft = mapActivityDraft(activity);
       return draft ? [draft] : [];
     }),
     knownActivityIds,

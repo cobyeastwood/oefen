@@ -9,7 +9,7 @@ type RaceSession = {
   occurredAt: Date;
 };
 
-export type RaceGoalHit = {
+type RaceGoalHit = {
   sessionId: string;
   periodEnd: Date;
 };
