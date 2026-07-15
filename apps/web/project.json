@@ -7,7 +7,6 @@
   "targets": {
     "build-api": {
       "executor": "@nx/esbuild:esbuild",
-      "dependsOn": ["database:prisma-generate"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "main": "apps/web/src/handler.ts",

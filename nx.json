@@ -9,7 +9,9 @@
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": []
+    "sharedGlobals": [
+      "{workspaceRoot}/libs/shared/database/prisma/schema.prisma"
+    ]
   },
   "plugins": [
     {
@@ -47,7 +49,7 @@
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "database:prisma-generate"],
       "inputs": [
         "production",
         "^production",

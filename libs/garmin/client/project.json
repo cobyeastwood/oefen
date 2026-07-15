@@ -4,7 +4,6 @@
   "sourceRoot": "libs/garmin/client/src",
   "projectType": "library",
   "tags": ["type:lib", "scope:garmin", "bundle:worker"],
-  "implicitDependencies": ["database"],
   "targets": {
     "test": {
       "executor": "nx:run-commands",

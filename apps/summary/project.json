@@ -7,7 +7,6 @@
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
-      "dependsOn": ["database:prisma-generate"],
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
