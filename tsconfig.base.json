@@ -14,14 +14,17 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@oefen/api-core": ["./libs/api-core/src/index.ts"],
-      "@oefen/database": ["./libs/database/src/index.ts"],
-      "@oefen/utils": ["./libs/utils/src/index.ts"],
-      "@oefen/utils/notify": ["./libs/utils/src/lib/notify/index.ts"],
-      "@oefen/garmin": ["./libs/garmin/src/index.ts"],
-      "@oefen/tracker-core": ["./libs/tracker-core/src/index.ts"],
-      "@oefen/tracker-sync": ["./libs/tracker-sync/src/index.ts"],
-      "@oefen/summarizer": ["./libs/summarizer/src/index.ts"]
+      "@oefen/shared/types": ["./libs/shared/types/src/index.ts"],
+      "@oefen/shared/utils": ["./libs/shared/utils/src/index.ts"],
+      "@oefen/shared/utils/notify": [
+        "./libs/shared/utils/src/lib/notify/index.ts"
+      ],
+      "@oefen/shared/database": ["./libs/shared/database/src/index.ts"],
+      "@oefen/tracker/core": ["./libs/tracker/core/src/index.ts"],
+      "@oefen/tracker/sync": ["./libs/tracker/sync/src/index.ts"],
+      "@oefen/api/core": ["./libs/api/core/src/index.ts"],
+      "@oefen/garmin": ["./libs/garmin/client/src/index.ts"],
+      "@oefen/summary/summarizer": ["./libs/summary/summarizer/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

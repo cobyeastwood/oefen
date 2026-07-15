@@ -20,7 +20,7 @@
     "dev:ui": "nx run web:serve",
     "dev": "pnpm dev:api & pnpm dev:ui",
     "lint": "eslint .",
-    "test": "nx run-many -t test -p tracker-core,tracker-sync,utils,garmin"
+    "test": "nx run-many -t test -p tracker-core,tracker-sync,shared-utils,garmin"
   },
   "devDependencies": {
     "@nx/esbuild": "23.0.1",

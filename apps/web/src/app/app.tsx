@@ -8,27 +8,27 @@ import {
   DEFAULT_VOLUME_DISTANCE,
   DEADLINE_MONTH_OPTIONS,
   distanceMFromGoalMetric,
-  distanceMFromUnitValue,
+  toMeters,
   distancePeriodFromMetric,
   DISTANCE_PERIODS,
   findPresetForDistanceM,
   formatGoalDeadlineLabel,
   formatGoalDistanceLabel,
   formatGoalTargetLabel,
-  formatSecondsAsMmSs,
+  formatMmSs,
   getDistancePreset,
   GOAL_TYPES,
   goalTypeFromMetric,
   goalTypeLabel,
   monthsBetweenDeadlines,
-  parseMmSsToSeconds,
+  parseMmSs,
   presetToDistanceM,
   presetsForUnit,
-  unitValueFromDistanceM,
+  fromMeters,
   type DistancePeriod,
   type DistanceUnit,
   type GoalType,
-} from '@oefen/utils';
+} from '@oefen/shared/utils';
 import { FormEvent, useEffect, useState } from 'react';
 
 import { readAppCache, writeAppCache } from './app-cache';
@@ -100,7 +100,7 @@ function formStateFromGoal(
   };
 
   if (type === 'race_time') {
-    next.targetTime = formatSecondsAsMmSs(goal.targetValue);
+    next.targetTime = formatMmSs(goal.targetValue);
     const storedDistanceM =
       distanceMFromGoalMetric(goal.targetMetric) ?? DEFAULT_GOAL_DISTANCE_M;
     const match = findPresetForDistanceM(storedDistanceM);
@@ -110,7 +110,7 @@ function formStateFromGoal(
     }
   } else {
     next.volumeDistance = String(
-      unitValueFromDistanceM(preferUnit, goal.targetValue),
+      fromMeters(preferUnit, goal.targetValue),
     );
   }
 
@@ -238,11 +238,11 @@ export function App() {
 
   function handleDistanceUnitChange(unit: DistanceUnit) {
     if (isDistanceGoal) {
-      const currentMeters = distanceMFromUnitValue(
+      const currentMeters = toMeters(
         distanceUnit,
         Number(volumeDistance) || 0,
       );
-      setVolumeDistance(String(unitValueFromDistanceM(unit, currentMeters)));
+      setVolumeDistance(String(fromMeters(unit, currentMeters)));
     }
     setDistanceUnit(unit);
     const firstPreset = presetsForUnit(unit)[0];
@@ -259,7 +259,7 @@ export function App() {
     let distanceM: number | undefined;
 
     if (type === 'race_time') {
-      const parsed = parseMmSsToSeconds(targetTime);
+      const parsed = parseMmSs(targetTime);
       if (parsed == null) {
         setError('Target time must be mm:ss');
         return;
@@ -272,7 +272,7 @@ export function App() {
         setError(`Enter a distance greater than 0 ${distanceUnit}`);
         return;
       }
-      targetValue = distanceMFromUnitValue(distanceUnit, amount);
+      targetValue = toMeters(distanceUnit, amount);
     }
 
     if (activeGoal && !revision) {

@@ -1,0 +1,34 @@
+{
+  "name": "database",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/database/src",
+  "projectType": "library",
+  "tags": [
+    "type:lib",
+    "scope:shared",
+    "bundle:api"
+  ],
+  "targets": {
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec prisma generate --schema=libs/shared/database/prisma/schema.prisma",
+        "cwd": "."
+      }
+    },
+    "db-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec prisma migrate dev --schema=libs/shared/database/prisma/schema.prisma",
+        "cwd": "."
+      }
+    },
+    "db-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec prisma migrate deploy --schema=libs/shared/database/prisma/schema.prisma",
+        "cwd": "."
+      }
+    }
+  }
+}

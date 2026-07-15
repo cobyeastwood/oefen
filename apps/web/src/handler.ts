@@ -1,3 +1,3 @@
-import { app } from '@oefen/api-core';
+import { app } from '@oefen/api/core';
 
 export default app;

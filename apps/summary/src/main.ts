@@ -1,6 +1,6 @@
 import type { Handler } from 'aws-lambda';
 
-import { generateSummary } from '@oefen/summarizer';
+import { generateSummary } from '@oefen/summary/summarizer';
 
 import { loadSummarizerConfig } from './lib/load-config';
 import { disconnectPrisma } from './lib/prisma';

@@ -1,0 +1,50 @@
+{
+  "name": "tracker-sync",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tracker/sync/src",
+  "projectType": "library",
+  "tags": [
+    "type:lib",
+    "scope:tracker",
+    "bundle:worker"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/tracker/sync",
+        "format": [
+          "cjs"
+        ],
+        "bundle": true,
+        "thirdParty": false,
+        "external": [
+          "@oefen/shared/database",
+          "@oefen/shared/types",
+          "@oefen/shared/utils",
+          "@oefen/garmin",
+          "@oefen/summary/summarizer"
+        ],
+        "main": "libs/tracker/sync/src/index.ts",
+        "tsConfig": "libs/tracker/sync/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm exec vitest run --config libs/tracker/sync/vitest.config.ts",
+        "cwd": "."
+      }
+    }
+  }
+}

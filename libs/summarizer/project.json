@@ -1,8 +1,0 @@
-{
-  "name": "summarizer",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/summarizer/src",
-  "projectType": "library",
-  "tags": ["type:lib", "scope:summarizer", "bundle:worker"],
-  "targets": {}
-}

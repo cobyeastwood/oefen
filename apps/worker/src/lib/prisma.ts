@@ -1,3 +1,3 @@
-import { disconnectPrisma } from '@oefen/database';
+import { disconnectPrisma } from '@oefen/shared/database';
 
 export { disconnectPrisma };
