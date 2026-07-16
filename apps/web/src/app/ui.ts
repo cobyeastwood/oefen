@@ -29,7 +29,9 @@ export const fieldClass = 'flex w-full min-w-0 flex-col gap-2';
 
 export const inputClass = cx(
   'ui-input box-border h-control w-full min-w-0 rounded-lg border border-border bg-background',
-  'px-3.5 text-[0.9375rem] leading-tight text-foreground',
+  // 16px on mobile: anything smaller makes iOS Safari zoom on focus, which
+  // shifts the view and re-enables horizontal panning.
+  'px-3.5 text-base leading-tight text-foreground md:text-[0.9375rem]',
   'focus:border-ring focus:outline-none focus:shadow-[0_0_0_3px_rgb(0_0_0_/0.04)]',
   'disabled:cursor-not-allowed disabled:text-muted disabled:opacity-55',
 );
