@@ -377,6 +377,23 @@ export async function findPriorCheckpoint(
   });
 }
 
+/** Newest-first prior checkpoints of a type ending before `beforeEnd`. */
+export async function listPriorCheckpoints(
+  type: CheckpointType,
+  beforeEnd: Date,
+  take: number,
+) {
+  if (take <= 0) {
+    return [];
+  }
+  const prisma = await getPrisma();
+  return prisma.checkpoint.findMany({
+    where: { type, periodEnd: { lt: beforeEnd } },
+    orderBy: { periodEnd: 'desc' },
+    take,
+  });
+}
+
 export async function createCheckpoint(data: {
   type: CheckpointType;
   periodStart: Date;

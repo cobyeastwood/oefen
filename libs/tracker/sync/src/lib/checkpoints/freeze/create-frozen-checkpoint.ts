@@ -3,12 +3,18 @@ import {
   createCheckpoint,
   findCheckpointByPeriod,
   isUniqueViolation,
+  listPriorCheckpoints,
   type GoalSnapshot,
 } from '@oefen/shared/database';
+import { goalTypeFromMetric } from '@oefen/shared/utils';
 
 import {
   aggregateSessionTotals,
+  buildCheckpointPace,
   checkpointMetrics,
+  countWeeksMeetingTarget,
+  readCheckpointMetrics,
+  type DeadlineMilestone,
 } from '../metrics';
 import type { FreezeResult } from './types';
 
@@ -21,7 +27,33 @@ type CreateFrozenCheckpointInput = {
   goalId: string | null;
   goalSnapshot: GoalSnapshot | null;
   sessionId?: string | null;
+  milestone?: DeadlineMilestone;
 };
+
+async function resolveWeeksMeetingTarget(input: {
+  type: CheckpointType;
+  periodEnd: Date;
+  goal: Goal | null;
+  draftMetrics: ReturnType<typeof checkpointMetrics>;
+}) {
+  if (!input.goal || goalTypeFromMetric(input.goal.targetMetric) !== 'distance') {
+    return null;
+  }
+
+  const priorWeekly = await listPriorCheckpoints(
+    'weekly_since_goal',
+    input.periodEnd,
+    input.type === 'weekly_since_goal' ? 3 : 4,
+  );
+  const priorMetrics = priorWeekly.map((checkpoint) =>
+    readCheckpointMetrics(checkpoint.metricsJson),
+  );
+
+  return countWeeksMeetingTarget(
+    priorMetrics,
+    input.type === 'weekly_since_goal' ? input.draftMetrics : null,
+  );
+}
 
 /** Create the checkpoint row with computed metrics; recover from unique races. */
 export async function createFrozenCheckpoint(
@@ -33,6 +65,23 @@ export async function createFrozenCheckpoint(
     goal: input.goal,
     now: input.periodEnd,
   });
+
+  const weeksMeetingTarget = await resolveWeeksMeetingTarget({
+    type: input.type,
+    periodEnd: input.periodEnd,
+    goal: input.goal,
+    draftMetrics: metrics,
+  });
+  if (weeksMeetingTarget || metrics.pace) {
+    metrics.pace = buildCheckpointPace({
+      deadline: metrics.deadline,
+      goalProgress: metrics.goalProgress,
+      weeksMeetingTarget,
+    });
+  }
+  if (input.milestone != null) {
+    metrics.milestone = input.milestone;
+  }
 
   try {
     const checkpoint = await createCheckpoint({

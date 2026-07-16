@@ -40,6 +40,8 @@ describe('checkpointMetrics', () => {
     expect(metrics.bestAttemptValue).toBe(3000);
     expect(metrics.goalProgress?.ratio).toBeCloseTo(0.3);
     expect(metrics.goalProgress?.remaining).toBe(7000);
+    expect(metrics.pace?.gapToTarget).toBe(7000);
+    expect(metrics.pace?.elapsedRatio).toBeNull();
   });
 
   it('tracks race goal from best eligible attempt', () => {

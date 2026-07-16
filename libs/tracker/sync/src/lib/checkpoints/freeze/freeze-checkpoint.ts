@@ -35,6 +35,7 @@ export async function freezeCheckpoint(
     sessions,
     ...resolved,
     sessionId: attachments.sessionId,
+    milestone: attachments.milestone,
   });
 
   if (created.created && created.checkpointId) {

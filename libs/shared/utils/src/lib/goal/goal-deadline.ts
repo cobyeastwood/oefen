@@ -60,10 +60,12 @@ export function deadlineProgress(
   }
 
   const remainingMs = Math.max(0, deadline.getTime() - now.getTime());
+  const remainingRatio = remainingMs / totalSpanMs;
   return {
     deadlineAt: deadline.toISOString(),
     totalSpanMs,
     remainingMs,
-    remainingRatio: remainingMs / totalSpanMs,
+    remainingRatio,
+    elapsedRatio: 1 - remainingRatio,
   };
 }

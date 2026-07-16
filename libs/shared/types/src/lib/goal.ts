@@ -31,6 +31,8 @@ export type DeadlineProgress = {
   totalSpanMs: number;
   remainingMs: number;
   remainingRatio: number;
+  /** Fraction of the goal→deadline span that has already elapsed. */
+  elapsedRatio: number;
 };
 
 export type GoalRevision = 'update' | 'replace';

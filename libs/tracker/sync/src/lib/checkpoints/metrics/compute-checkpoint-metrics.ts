@@ -7,11 +7,12 @@ import {
 } from '@oefen/shared/utils';
 
 import { aggregateSessionTotals } from './aggregate-session-totals';
+import { buildCheckpointPace } from './build-checkpoint-pace';
 import {
   raceEquivalentSec,
   sessionImpliedMilePaceSec,
 } from './race-equivalent-sec';
-import type { CheckpointMetrics } from './types';
+import type { CheckpointMetrics, CheckpointPace } from './types';
 
 const METERS_PER_KM = 1000;
 
@@ -129,11 +130,15 @@ export function checkpointMetrics(input: {
   sessions: SessionSlice[];
   goal?: GoalSlice | null;
   now?: Date;
+  weeksMeetingTarget?: CheckpointPace['weeksMeetingTarget'];
 }): CheckpointMetrics {
   const { sessions, goal } = input;
   const now = input.now ?? new Date();
   const totals = aggregateSessionTotals(sessions);
   const attempt = buildGoalAttempt(sessions, totals, goal);
+  const deadline = goal?.deadline
+    ? deadlineProgress(goal.effectiveFrom, goal.deadline, now)
+    : null;
 
   return {
     totalDistanceM: totals.distanceM,
@@ -144,8 +149,11 @@ export function checkpointMetrics(input: {
     bestAttemptValue: attempt.bestAttemptValue,
     bestAttemptKind: attempt.bestAttemptKind,
     goalProgress: attempt.goalProgress,
-    deadline: goal?.deadline
-      ? deadlineProgress(goal.effectiveFrom, goal.deadline, now)
-      : null,
+    deadline,
+    pace: buildCheckpointPace({
+      deadline,
+      goalProgress: attempt.goalProgress,
+      weeksMeetingTarget: input.weeksMeetingTarget,
+    }),
   };
 }

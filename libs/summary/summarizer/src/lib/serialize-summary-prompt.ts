@@ -6,6 +6,13 @@ function iso(date: Date) {
   return date.toISOString();
 }
 
+function readMetricsObject(metricsJson: unknown) {
+  if (!metricsJson || typeof metricsJson !== 'object') {
+    return null;
+  }
+  return metricsJson as Record<string, unknown>;
+}
+
 /** Serialize period wellness averages for the summarizer prompt. */
 export function serializeWellness(wellness: WellnessAverages) {
   return {
@@ -25,6 +32,7 @@ export function serializeWellness(wellness: WellnessAverages) {
 export function serializeCheckpoint(
   checkpoint: SummaryContext['checkpoint'],
 ) {
+  const metrics = readMetricsObject(checkpoint.metricsJson);
   return {
     type: checkpoint.type,
     periodStart: iso(checkpoint.periodStart),
@@ -33,6 +41,8 @@ export function serializeCheckpoint(
     durationS: checkpoint.durationS,
     distanceM: checkpoint.distanceM,
     metricsJson: checkpoint.metricsJson,
+    pace: metrics?.['pace'] ?? null,
+    milestone: metrics?.['milestone'] ?? null,
     goalSnapshot: checkpoint.goalSnapshot,
   };
 }
@@ -41,11 +51,14 @@ export function serializeCheckpoint(
 export function serializePrior(
   prior: NonNullable<SummaryContext['prior']>,
 ) {
+  const metrics = readMetricsObject(prior.metricsJson);
   return {
     type: prior.type,
     periodStart: iso(prior.periodStart),
     periodEnd: iso(prior.periodEnd),
     metricsJson: prior.metricsJson,
+    pace: metrics?.['pace'] ?? null,
+    milestone: metrics?.['milestone'] ?? null,
     goalSnapshot: prior.goalSnapshot,
   };
 }
