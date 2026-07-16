@@ -4,8 +4,7 @@ export function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(' ');
 }
 
-export const pageClass =
-  'flex justify-center px-5 py-7 pb-32 md:px-8 md:py-8 md:pb-32';
+export const pageClass = 'flex justify-center px-5 py-7 md:px-8 md:py-8';
 
 export const pageInnerClass =
   'flex w-full min-w-0 max-w-[26rem] flex-col gap-6';

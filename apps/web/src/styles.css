@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 
+/* Design tokens */
 @theme {
   --color-background: #ffffff;
   --color-foreground: #171717;
@@ -12,11 +13,12 @@
   --height-control: 2.75rem;
 }
 
+/* App-wide element defaults */
 @layer base {
   html,
   body {
-    margin: 0;
-    overscroll-behavior-y: none;
+    overflow-x: clip;
+    overscroll-behavior: none;
   }
 
   html {
@@ -26,86 +28,44 @@
   }
 
   body {
-    font-family: var(--font-sans);
     background: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
     touch-action: manipulation;
-    overflow-x: clip;
-  }
-
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
   }
 }
 
-/* Browser-specific bits that are awkward as utilities */
+/* Browser quirks that Tailwind utilities can't express */
 @layer components {
-  .ui-input:-webkit-autofill,
-  .ui-input:-webkit-autofill:hover,
-  .ui-input:-webkit-autofill:focus {
+  /* Keep our colors when Chrome/Safari autofill a field */
+  .ui-input:-webkit-autofill {
     -webkit-text-fill-color: var(--color-foreground);
     caret-color: var(--color-foreground);
     box-shadow: 0 0 0 1000px var(--color-background) inset;
     transition: background-color 99999s ease-out 0s;
   }
 
-  /* Prevent Safari/Chrome autofill badges from resizing the field */
+  /* Hide autofill badges so they don't resize the field */
   .ui-input::-webkit-contacts-auto-fill-button,
   .ui-input::-webkit-credentials-auto-fill-button,
-  .ui-input::-webkit-strong-password-auto-fill-button,
-  .ui-input-phone::-webkit-contacts-auto-fill-button,
-  .ui-input-phone::-webkit-credentials-auto-fill-button,
-  .ui-input-phone::-webkit-strong-password-auto-fill-button {
-    visibility: hidden !important;
+  .ui-input::-webkit-strong-password-auto-fill-button {
     display: none !important;
-    pointer-events: none !important;
-    position: absolute !important;
-    right: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
   }
 
-  /*
-   * Password managers / autofill inject icons as siblings or bump padding.
-   * Keep the field box fixed and hide injected non-input children.
-   */
-  .ui-phone-field > :not(input.ui-input-phone) {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-
-  /* Icons injected next to the field (not inside it) */
+  /* Hide icons that password managers inject around phone fields */
+  .ui-phone-field > :not(input.ui-input-phone),
   .ui-phone-controls > :not(.ui-phone-field):not(button) {
     display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    position: absolute !important;
   }
 
+  /* ...and keep the field itself full-width and icon-free */
   .ui-input-phone {
-    display: block;
     width: 100% !important;
-    max-width: 100% !important;
     padding-right: 0.875rem !important;
     background-image: none !important;
   }
 
+  /* Custom chevron for selects */
   .ui-select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23737373' d='M1.4 1.4 6 6l4.6-4.6L12 2.8 6 8.8 0 2.8z'/%3E%3C/svg%3E");
@@ -114,8 +74,10 @@
     padding-right: 2.25rem;
   }
 
+  /* Hide number input spinners */
   input[type='number'].ui-input {
     -moz-appearance: textfield;
+    appearance: textfield;
   }
 
   input[type='number'].ui-input::-webkit-outer-spin-button,
