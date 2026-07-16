@@ -39,11 +39,34 @@ import {
   updateUser,
   type Goal,
   type GoalRevision,
+  type User,
 } from './api';
 import { AppShell } from './app-shell';
 import type { AppTab } from './app-nav';
 import { SettingsPage } from './settings-page';
-import './app.css';
+import {
+  affixClass,
+  affixInputClass,
+  affixLabelClass,
+  buttonInlineClass,
+  buttonPrimaryClass,
+  cx,
+  fieldClass,
+  inputClass,
+  labelClass,
+  pageClass,
+  pageErrorClass,
+  pageHeaderClass,
+  pageInnerWideClass,
+  pageLeadClass,
+  pageTitleClass,
+  phoneControlsClass,
+  phoneFieldClass,
+  segmentClass,
+  segmentFaceClass,
+  segmentedFullClass,
+  selectClass,
+} from './ui';
 
 function deadlineMonthsFromGoal(goal: {
   deadline: string | null;
@@ -126,6 +149,7 @@ export function App() {
   const [phoneE164, setPhoneE164] = useState<string | null>(
     initialCache?.phoneE164 ?? null,
   );
+  const [status, setStatus] = useState<User['status']>('active');
   const [known, setKnown] = useState(Boolean(initialCache));
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -188,12 +212,17 @@ export function App() {
     setRevision(next.revision);
   }
 
-  function applySnapshot(nextGoals: Goal[], nextPhone: string | null) {
+  function applySnapshot(
+    nextGoals: Goal[],
+    nextPhone: string | null,
+    nextStatus: User['status'],
+  ) {
     const nextGoal = nextGoals[0] ?? null;
     const prevGoal = goals[0] ?? null;
     setGoals(nextGoals);
     setPhoneE164(nextPhone);
     setPhone(nextPhone ?? '');
+    setStatus(nextStatus);
 
     const goalChanged =
       prevGoal?.id !== nextGoal?.id ||
@@ -212,7 +241,11 @@ export function App() {
 
   async function refreshAll() {
     const [goalRes, userRes] = await Promise.all([getGoals(), getUser()]);
-    applySnapshot(goalRes.goals.slice(0, 1), userRes.user.phoneE164);
+    applySnapshot(
+      goalRes.goals.slice(0, 1),
+      userRes.user.phoneE164,
+      userRes.user.status,
+    );
   }
 
   useEffect(() => {
@@ -317,38 +350,51 @@ export function App() {
 
   return (
     <AppShell activeTab={tab} onTabChange={handleTabChange}>
-      <main className="page" hidden={tab !== 'goal'}>
-        <div className="page__inner page__inner--wide">
-          <div className="page__top">
-            <header className="page__header">
-              <h2 className="page__title">Goal</h2>
-              <p className="page__lead">Race time or distance target.</p>
+      <main className={pageClass} hidden={tab !== 'goal'}>
+        <div className={pageInnerWideClass}>
+          <div className="flex flex-col gap-5 md:grid md:grid-cols-[minmax(12rem,0.85fr)_minmax(0,1.15fr)] md:items-stretch md:gap-6">
+            <header className={pageHeaderClass}>
+              <h2 className={pageTitleClass}>Goal</h2>
+              <p className={pageLeadClass}>Race time or distance target.</p>
             </header>
 
-            <section className="goal-panel" aria-live="polite">
-              <p className="goal-panel__eyebrow">Current goal</p>
+            <section
+              className="min-w-0 rounded-xl border border-border bg-surface px-5 py-[1.125rem]"
+              aria-live="polite"
+            >
+              <p className="m-0 text-[0.6875rem] font-medium tracking-[0.06em] text-muted uppercase">
+                Current goal
+              </p>
               {activeGoal ? (
                 <>
-                  <h3 className="goal-panel__title">
+                  <h3 className="mt-1.5 mb-0 text-xl font-medium leading-snug tracking-tight [overflow-wrap:anywhere]">
                     {goalTypeLabel(goalTypeFromMetric(activeGoal.targetMetric))}
                   </h3>
-                  <dl className="goal-panel__meta">
-                    <div className="goal-panel__row">
-                      <dt className="goal-panel__key">Target</dt>
-                      <dd className="goal-panel__value">
+                  <dl className="mt-3.5 mb-0 flex min-w-0 flex-col gap-2 p-0">
+                    <div className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-start gap-3">
+                      <dt className="m-0 text-xs leading-snug text-muted">
+                        Target
+                      </dt>
+                      <dd className="m-0 min-w-0 break-words text-sm leading-snug">
                         {formatGoalTargetLabel(activeGoal, distanceUnit)}
                       </dd>
                     </div>
                     {activeDeadline ? (
-                      <div className="goal-panel__row">
-                        <dt className="goal-panel__key">Deadline</dt>
-                        <dd className="goal-panel__value">{activeDeadline}</dd>
+                      <div className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-start gap-3">
+                        <dt className="m-0 text-xs leading-snug text-muted">
+                          Deadline
+                        </dt>
+                        <dd className="m-0 min-w-0 break-words text-sm leading-snug">
+                          {activeDeadline}
+                        </dd>
                       </div>
                     ) : null}
                     {activeNote ? (
-                      <div className="goal-panel__row">
-                        <dt className="goal-panel__key">Note</dt>
-                        <dd className="goal-panel__value goal-panel__value--note">
+                      <div className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-start gap-3">
+                        <dt className="m-0 text-xs leading-snug text-muted">
+                          Note
+                        </dt>
+                        <dd className="m-0 min-w-0 break-words text-sm leading-snug text-muted">
                           {activeNote}
                         </dd>
                       </div>
@@ -357,8 +403,10 @@ export function App() {
                 </>
               ) : (
                 <>
-                  <h3 className="goal-panel__title">None set</h3>
-                  <p className="goal-panel__empty">
+                  <h3 className="mt-1.5 mb-0 text-xl font-medium leading-snug tracking-tight">
+                    None set
+                  </h3>
+                  <p className="mt-2 mb-0 text-sm leading-snug text-muted">
                     Choose a type and target below.
                   </p>
                 </>
@@ -366,60 +414,78 @@ export function App() {
             </section>
           </div>
 
-          {error ? <p className="page__error">{error}</p> : null}
+          {error ? <p className={pageErrorClass}>{error}</p> : null}
 
-          <form className="form form--grid" onSubmit={handleGoalSubmit}>
-            <div className="form__field form__field--6">
-              <span className="form__label">Type</span>
-              <div className="form__segmented form__segmented--full">
+          {known && status !== 'active' ? (
+            <p className={pageErrorClass}>
+              Account deactivated — Garmin sync and summary texts are off.
+              Reactivate in Settings.
+            </p>
+          ) : null}
+
+          <form
+            className="flex flex-col gap-5 md:grid md:grid-cols-12 md:items-start md:gap-x-4 md:gap-y-5"
+            onSubmit={handleGoalSubmit}
+          >
+            <div className={cx(fieldClass, 'md:col-span-6')}>
+              <span className={labelClass}>Type</span>
+              <div className={segmentedFullClass}>
                 {GOAL_TYPES.map((item) => (
-                  <label key={item.id} className="form__segment">
+                  <label key={item.id} className={segmentClass}>
                     <input
+                      className="peer absolute opacity-0 pointer-events-none"
                       type="radio"
                       name="goal-type"
                       value={item.id}
                       checked={type === item.id}
                       onChange={() => setType(item.id)}
                     />
-                    <span>{item.label}</span>
+                    <span className={segmentFaceClass}>{item.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="form__field form__field--3">
-              <span className="form__label">Unit</span>
-              <div className="form__segmented form__segmented--control">
-                <label className="form__segment">
+            <div className={cx(fieldClass, 'md:col-span-3')}>
+              <span className={labelClass}>Unit</span>
+              <div className={segmentedFullClass}>
+                <label className={segmentClass}>
                   <input
+                    className="peer absolute opacity-0 pointer-events-none"
                     type="radio"
                     name="distance-unit"
                     value="km"
                     checked={distanceUnit === 'km'}
                     onChange={() => handleDistanceUnitChange('km')}
                   />
-                  <span>km</span>
+                  <span className={segmentFaceClass}>km</span>
                 </label>
-                <label className="form__segment">
+                <label className={segmentClass}>
                   <input
+                    className="peer absolute opacity-0 pointer-events-none"
                     type="radio"
                     name="distance-unit"
                     value="mi"
                     checked={distanceUnit === 'mi'}
                     onChange={() => handleDistanceUnitChange('mi')}
                   />
-                  <span>mi</span>
+                  <span className={segmentFaceClass}>mi</span>
                 </label>
               </div>
             </div>
 
             <div
-              className={`form__field form__field--3${activeGoal ? '' : ' form__field--muted'}`}
+              className={cx(
+                fieldClass,
+                'md:col-span-3',
+                !activeGoal && 'pointer-events-none opacity-45',
+              )}
             >
-              <span className="form__label">Save as</span>
-              <div className="form__segmented form__segmented--full">
-                <label className="form__segment">
+              <span className={labelClass}>Save as</span>
+              <div className={segmentedFullClass}>
+                <label className={segmentClass}>
                   <input
+                    className="peer absolute opacity-0 pointer-events-none"
                     type="radio"
                     name="revision"
                     value="update"
@@ -428,10 +494,11 @@ export function App() {
                     disabled={!activeGoal}
                     required={Boolean(activeGoal)}
                   />
-                  <span>Update</span>
+                  <span className={segmentFaceClass}>Update</span>
                 </label>
-                <label className="form__segment">
+                <label className={segmentClass}>
                   <input
+                    className="peer absolute opacity-0 pointer-events-none"
                     type="radio"
                     name="revision"
                     value="replace"
@@ -439,20 +506,20 @@ export function App() {
                     onChange={() => setRevision('replace')}
                     disabled={!activeGoal}
                   />
-                  <span>Replace</span>
+                  <span className={segmentFaceClass}>Replace</span>
                 </label>
               </div>
             </div>
 
             {type === 'race_time' ? (
               <>
-                <div className="form__field form__field--6">
-                  <label className="form__label" htmlFor="distance-value">
+                <div className={cx(fieldClass, 'md:col-span-6')}>
+                  <label className={labelClass} htmlFor="distance-value">
                     Distance
                   </label>
                   <select
                     id="distance-value"
-                    className="form__input"
+                    className={selectClass}
                     value={distancePresetId}
                     onChange={(e) => setDistancePresetId(e.target.value)}
                     required
@@ -465,13 +532,13 @@ export function App() {
                   </select>
                 </div>
 
-                <div className="form__field form__field--6">
-                  <label className="form__label" htmlFor="target-time">
+                <div className={cx(fieldClass, 'md:col-span-6')}>
+                  <label className={labelClass} htmlFor="target-time">
                     Target time
                   </label>
                   <input
                     id="target-time"
-                    className="form__input"
+                    className={inputClass}
                     value={targetTime}
                     onChange={(e) => setTargetTime(e.target.value)}
                     placeholder={`mm:ss · ${distanceLabel}`}
@@ -482,13 +549,13 @@ export function App() {
               </>
             ) : (
               <>
-                <div className="form__field form__field--4">
-                  <label className="form__label" htmlFor="distance-period">
+                <div className={cx(fieldClass, 'md:col-span-4')}>
+                  <label className={labelClass} htmlFor="distance-period">
                     Timeframe
                   </label>
                   <select
                     id="distance-period"
-                    className="form__input"
+                    className={selectClass}
                     value={period}
                     onChange={(e) =>
                       setPeriod(e.target.value as DistancePeriod)
@@ -503,14 +570,14 @@ export function App() {
                   </select>
                 </div>
 
-                <div className="form__field form__field--8">
-                  <label className="form__label" htmlFor="distance-value">
+                <div className={cx(fieldClass, 'md:col-span-8')}>
+                  <label className={labelClass} htmlFor="distance-value">
                     Target distance
                   </label>
-                  <div className="form__affix">
+                  <div className={affixClass}>
                     <input
                       id="distance-value"
-                      className="form__input form__input--affix"
+                      className={affixInputClass}
                       type="number"
                       min="1"
                       step="0.1"
@@ -520,7 +587,7 @@ export function App() {
                       inputMode="decimal"
                       required
                     />
-                    <span className="form__affix-label">
+                    <span className={affixLabelClass}>
                       {distanceUnit}/{periodLabel}
                     </span>
                   </div>
@@ -528,13 +595,13 @@ export function App() {
               </>
             )}
 
-            <div className="form__field form__field--4">
-              <label className="form__label" htmlFor="deadline-months">
+            <div className={cx(fieldClass, 'md:col-span-4')}>
+              <label className={labelClass} htmlFor="deadline-months">
                 Deadline
               </label>
               <select
                 id="deadline-months"
-                className="form__input"
+                className={selectClass}
                 value={deadlineMonths}
                 onChange={(e) => setDeadlineMonths(e.target.value)}
               >
@@ -546,23 +613,23 @@ export function App() {
               </select>
             </div>
 
-            <div className="form__field form__field--8">
-              <label className="form__label" htmlFor="note">
+            <div className={cx(fieldClass, 'md:col-span-8')}>
+              <label className={labelClass} htmlFor="note">
                 Note
               </label>
               <input
                 id="note"
-                className="form__input"
+                className={inputClass}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Optional"
               />
             </div>
 
-            <div className="form__actions form__field--12">
+            <div className="col-span-full mt-0.5 flex min-h-control md:justify-end">
               <button
                 type="submit"
-                className="form__btn form__btn--primary"
+                className={cx(buttonPrimaryClass, 'w-full md:w-auto')}
                 disabled={isSaving}
               >
                 {isSaving ? 'Saving…' : submitLabel}
@@ -571,26 +638,36 @@ export function App() {
           </form>
 
           {showPhoneSetup ? (
-            <section className="phone">
-              <p className="phone__copy">
+            <section className="flex min-h-[5.75rem] flex-col gap-3.5 border-t border-border pt-5">
+              <p className="m-0 text-[0.8125rem] leading-snug text-muted">
                 Add a phone number to get summary texts after sync.
               </p>
-              <form className="form form--compact" onSubmit={handlePhoneSubmit}>
-                <div className="form__controls">
-                  <input
-                    id="phone"
-                    className="form__input"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+15551234567"
-                    autoComplete="tel"
-                    required
-                    aria-label="Phone number"
-                  />
+              <form
+                className="flex flex-col gap-3"
+                onSubmit={handlePhoneSubmit}
+              >
+                <div className={phoneControlsClass}>
+                  <div className={phoneFieldClass}>
+                    <input
+                      id="phone"
+                      className={cx(inputClass, 'ui-input-phone')}
+                      type="text"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+15551234567"
+                      autoComplete="one-time-code"
+                      data-1p-ignore
+                      data-lpignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
+                      required
+                      aria-label="Phone number"
+                    />
+                  </div>
                   <button
                     type="submit"
-                    className="form__btn form__btn--primary form__btn--inline"
+                    className={cx(buttonPrimaryClass, buttonInlineClass)}
                     disabled={isSavingPhone}
                   >
                     {isSavingPhone ? '…' : 'Save'}
@@ -602,15 +679,22 @@ export function App() {
         </div>
       </main>
 
-      <div className="page-slot" hidden={tab !== 'settings'}>
+      <div
+        className={cx(
+          'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
+          tab !== 'settings' && 'hidden',
+        )}
+      >
         <SettingsPage
           phoneE164={phoneE164}
+          status={status}
           known={known}
           onSaved={(nextPhone) => {
             setPhoneE164(nextPhone);
             setPhone(nextPhone ?? '');
             persistCache({ phoneE164: nextPhone });
           }}
+          onStatusChange={setStatus}
         />
       </div>
     </AppShell>

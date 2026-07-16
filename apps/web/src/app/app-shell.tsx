@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 
 import { AppNav, type AppTab } from './app-nav';
-import './app-shell.css';
 
 type AppShellProps = {
   activeTab: AppTab;
@@ -11,12 +10,16 @@ type AppShellProps = {
 
 export function AppShell({ activeTab, onTabChange, children }: AppShellProps) {
   return (
-    <div className="shell">
-      <header className="shell__header">
-        <h1 className="shell__brand">oefen</h1>
+    <div className="flex h-dvh max-h-dvh w-full max-w-full min-h-0 flex-col overflow-hidden bg-background">
+      <header className="flex shrink-0 items-baseline justify-between gap-6 border-b border-border px-5 pt-4 pb-3 md:px-8">
+        <h1 className="m-0 text-[0.9375rem] font-medium tracking-tight">
+          oefen
+        </h1>
         <AppNav active={activeTab} onChange={onTabChange} />
       </header>
-      <div className="shell__content">{children}</div>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        {children}
+      </div>
     </div>
   );
 }

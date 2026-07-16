@@ -1,78 +1,129 @@
-:root {
-  color-scheme: light;
-  --bg: #ffffff;
-  --surface: #fafafa;
-  --text: #171717;
-  --muted: #737373;
-  --border: #ebebeb;
-  --control-height: 2.75rem;
+@import 'tailwindcss';
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --color-muted: #737373;
+  --color-surface: #fafafa;
+  --color-border: #ebebeb;
+  --color-ring: #a3a3a3;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --height-control: 2.75rem;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@layer base {
+  html {
+    color-scheme: light;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body,
+  #root {
+    height: 100%;
+    max-height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
-html {
-  scrollbar-gutter: stable;
-}
+/* Browser-specific bits that are awkward as utilities */
+@layer components {
+  .ui-input:-webkit-autofill,
+  .ui-input:-webkit-autofill:hover,
+  .ui-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-foreground);
+    caret-color: var(--color-foreground);
+    box-shadow: 0 0 0 1000px var(--color-background) inset;
+    transition: background-color 99999s ease-out 0s;
+  }
 
-html,
-body,
-#root {
-  height: 100%;
-}
+  /* Prevent Safari/Chrome autofill badges from resizing the field */
+  .ui-input::-webkit-contacts-auto-fill-button,
+  .ui-input::-webkit-credentials-auto-fill-button,
+  .ui-input::-webkit-strong-password-auto-fill-button,
+  .ui-input-phone::-webkit-contacts-auto-fill-button,
+  .ui-input-phone::-webkit-credentials-auto-fill-button,
+  .ui-input-phone::-webkit-strong-password-auto-fill-button {
+    visibility: hidden !important;
+    display: none !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    right: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 
-body {
-  margin: 0;
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-}
+  /*
+   * Password managers / autofill inject icons as siblings or bump padding.
+   * Keep the field box fixed and hide injected non-input children.
+   */
+  .ui-phone-field > :not(input.ui-input-phone) {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 
-/* Early layout lock so controls don't resize when app.css arrives / autofill paints */
-.form__input,
-.form__btn {
-  height: var(--control-height);
-  box-sizing: border-box;
-}
+  /* Icons injected next to the field (not inside it) */
+  .ui-phone-controls > :not(.ui-phone-field):not(button) {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+  }
 
-.form__input {
-  width: 100%;
-  padding: 0 0.875rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.9375rem;
-  line-height: 1.25;
-}
+  .ui-input-phone {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 0.875rem !important;
+    background-image: none !important;
+  }
 
-.form__input:-webkit-autofill,
-.form__input:-webkit-autofill:hover,
-.form__input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--text);
-  caret-color: var(--text);
-  box-shadow: 0 0 0 1000px var(--bg) inset;
-  transition: background-color 99999s ease-out 0s;
-}
+  .ui-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23737373' d='M1.4 1.4 6 6l4.6-4.6L12 2.8 6 8.8 0 2.8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    padding-right: 2.25rem;
+  }
 
-.form__input--phone::-webkit-contacts-auto-fill-button,
-.form__input--phone::-webkit-credentials-auto-fill-button {
-  visibility: hidden !important;
-  display: none !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  right: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  input[type='number'].ui-input {
+    -moz-appearance: textfield;
+  }
+
+  input[type='number'].ui-input::-webkit-outer-spin-button,
+  input[type='number'].ui-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
