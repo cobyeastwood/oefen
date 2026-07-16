@@ -27,7 +27,7 @@
           "@oefen/shared/types",
           "@oefen/shared/utils",
           "@oefen/garmin",
-          "@oefen/summary/summarizer"
+          "@oefen/summary/core"
         ],
         "main": "libs/tracker/sync/src/index.ts",
         "tsConfig": "libs/tracker/sync/tsconfig.lib.json",

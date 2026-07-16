@@ -13,7 +13,7 @@ function readMetricsObject(metricsJson: unknown) {
   return metricsJson as Record<string, unknown>;
 }
 
-/** Serialize period wellness averages for the summarizer prompt. */
+/** Serialize period wellness averages for the summary prompt. */
 export function serializeWellness(wellness: WellnessAverages) {
   return {
     avgSteps: wellness.avgSteps,
@@ -28,7 +28,7 @@ export function serializeWellness(wellness: WellnessAverages) {
   };
 }
 
-/** Serialize the current checkpoint for the summarizer prompt. */
+/** Serialize the current checkpoint for the summary prompt. */
 export function serializeCheckpoint(
   checkpoint: SummaryContext['checkpoint'],
 ) {
@@ -48,7 +48,7 @@ export function serializeCheckpoint(
   };
 }
 
-/** Serialize a prior checkpoint for the summarizer prompt. */
+/** Serialize a prior checkpoint for the summary prompt. */
 export function serializePrior(
   prior: NonNullable<SummaryContext['prior']>,
 ) {

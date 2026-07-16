@@ -46,7 +46,7 @@
       "options": {
         "envFile": ".env",
         "env": {
-          "SSM_PREFIX": "/oefen/summarizer",
+          "SSM_PREFIX": "/oefen/summary",
           "AWS_REGION": "us-west-1"
         },
         "commands": [

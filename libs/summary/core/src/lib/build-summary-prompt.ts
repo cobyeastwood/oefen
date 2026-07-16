@@ -5,7 +5,7 @@ import {
   serializeWellness,
 } from './serialize-summary-prompt';
 
-/** Build the JSON prompt the summarizer agent consumes. */
+/** Build the JSON prompt the summary agent consumes. */
 export function buildSummaryPrompt(context: SummaryContext): string {
   return JSON.stringify(
     {

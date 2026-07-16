@@ -86,7 +86,7 @@ async function detect(ctx: DetectorContext): Promise<FreezeResult[]> {
         goalId: ctx.goal.id,
         goal: ctx.goal,
         milestone: decision.milestone,
-        invokeSummarizer: ctx.invokeSummarizer,
+        invokeSummary: ctx.invokeSummary,
       },
     ),
   ];

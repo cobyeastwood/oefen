@@ -2,7 +2,7 @@ import type { Handler } from 'aws-lambda';
 import { getUser, isUserSyncEnabled } from '@oefen/shared/database';
 import { syncGarmin } from '@oefen/tracker/sync';
 
-import { invokeSummarizer } from './lib/invoke-summarizer';
+import { invokeSummary } from './lib/invoke-summary';
 import {
   assertTokensLoaded,
   loadWorkerConfig,
@@ -46,7 +46,7 @@ async function runGarminSync(user: SyncUser, startedAt: number) {
   const result = await syncGarmin(user, {
     onAuthenticated: captureAndPersistTokens,
     onSyncComplete: captureAndPersistTokens,
-    invokeSummarizer,
+    invokeSummary,
   });
 
   console.log('[worker] Sync completed', {
@@ -76,7 +76,7 @@ export const handler: Handler = async (event) => {
   console.log('[worker] Invoke started', {
     hasEvent: event != null,
     ssmPrefix: process.env['SSM_PREFIX'] ?? null,
-    summarizerFunction: process.env['SUMMARIZER_FUNCTION_NAME'] ?? null,
+    summaryFunction: process.env['SUMMARY_FUNCTION_NAME'] ?? null,
   });
 
   try {

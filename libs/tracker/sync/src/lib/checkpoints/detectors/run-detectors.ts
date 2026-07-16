@@ -5,7 +5,7 @@ import {
 } from '@oefen/shared/database';
 
 import type { FreezeResult } from '../freeze';
-import type { SummarizerInvoker } from '../invoke-summarizer';
+import type { SummaryInvoker } from '../invoke-summary';
 import { deadlineQuarterDetector } from './detect-deadline-quarter';
 import { goalReachedDetector } from './detect-goal-reached';
 import { weeklySinceGoalDetector } from './detect-weekly-since-goal';
@@ -25,7 +25,7 @@ type RunDetectorsResult = {
 };
 
 type RunDetectorsOptions = {
-  invokeSummarizer?: SummarizerInvoker;
+  invokeSummary?: SummaryInvoker;
 };
 
 async function buildDetectorContext(
@@ -40,7 +40,7 @@ async function buildDetectorContext(
       goal: null,
       checkpoints: [],
       sessions: [],
-      invokeSummarizer: options.invokeSummarizer,
+      invokeSummary: options.invokeSummary,
     };
   }
 
@@ -60,7 +60,7 @@ async function buildDetectorContext(
     goal,
     checkpoints,
     sessions,
-    invokeSummarizer: options.invokeSummarizer,
+    invokeSummary: options.invokeSummary,
   };
 }
 

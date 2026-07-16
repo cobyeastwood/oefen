@@ -8,7 +8,7 @@ const SECURE_PARAM_ENV: Record<string, string> = {
   'twilio-from-number': 'TWILIO_FROM_NUMBER',
 };
 
-export async function loadSummarizerConfig(): Promise<void> {
+export async function loadSummaryConfig(): Promise<void> {
   const prefix = process.env['SSM_PREFIX'];
 
   if (!prefix) {

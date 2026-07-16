@@ -1,14 +1,14 @@
-import { getSummarizerAgent } from './agent';
+import { getSummaryAgent } from './agent';
 import { buildSummaryPrompt } from './build-summary-prompt';
 import { dispatchSummarySms } from './dispatch-summary-sms';
 import { loadSummaryContext } from './load-summary-context';
 import { persistSummary } from './persist-summary';
 
 async function generateSummaryText(prompt: string): Promise<string> {
-  const result = await getSummarizerAgent().generate(prompt);
+  const result = await getSummaryAgent().generate(prompt);
   const content = result.text?.trim();
   if (!content) {
-    throw new Error('Summarizer returned empty content');
+    throw new Error('Summary returned empty content');
   }
   return content;
 }

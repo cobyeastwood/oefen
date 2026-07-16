@@ -4,7 +4,7 @@ import {
   listSessionsInPeriod,
 } from '@oefen/shared/database';
 
-import { invokeSummarizer as invokeSummarizerLocal } from '../invoke-summarizer';
+import { invokeSummary as invokeSummaryLocal } from '../invoke-summary';
 import { createFrozenCheckpoint } from './create-frozen-checkpoint';
 import { resolveFreezeGoal } from './resolve-freeze-goal';
 import type { FreezeAttachments, FreezeResult } from './types';
@@ -39,7 +39,7 @@ export async function freezeCheckpoint(
   });
 
   if (created.created && created.checkpointId) {
-    const summarize = attachments.invokeSummarizer ?? invokeSummarizerLocal;
+    const summarize = attachments.invokeSummary ?? invokeSummaryLocal;
     await summarize(created.checkpointId);
   }
 

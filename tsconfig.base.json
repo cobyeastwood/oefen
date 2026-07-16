@@ -24,7 +24,7 @@
       "@oefen/tracker/sync": ["./libs/tracker/sync/src/index.ts"],
       "@oefen/api/core": ["./libs/api/core/src/index.ts"],
       "@oefen/garmin": ["./libs/garmin/client/src/index.ts"],
-      "@oefen/summary/summarizer": ["./libs/summary/summarizer/src/index.ts"]
+      "@oefen/summary/core": ["./libs/summary/core/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

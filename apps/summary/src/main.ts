@@ -1,17 +1,17 @@
 import type { Handler } from 'aws-lambda';
 
-import { generateSummary } from '@oefen/summary/summarizer';
+import { generateSummary } from '@oefen/summary/core';
 
-import { loadSummarizerConfig } from './lib/load-config';
+import { loadSummaryConfig } from './lib/load-config';
 import { disconnectPrisma } from './lib/prisma';
 
-type SummarizerEvent = {
+type SummaryEvent = {
   checkpointId: string;
 };
 
-export const handler: Handler = async (event: SummarizerEvent) => {
+export const handler: Handler = async (event: SummaryEvent) => {
   try {
-    await loadSummarizerConfig();
+    await loadSummaryConfig();
 
     if (!event?.checkpointId) {
       return {
@@ -27,10 +27,10 @@ export const handler: Handler = async (event: SummarizerEvent) => {
       body: JSON.stringify({ ok: true, ...result }),
     };
   } catch (error) {
-    console.error('Summarizer error:', error);
+    console.error('Summary error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ ok: false, error: 'Summarizer failed' }),
+      body: JSON.stringify({ ok: false, error: 'Summary failed' }),
     };
   } finally {
     await disconnectPrisma();

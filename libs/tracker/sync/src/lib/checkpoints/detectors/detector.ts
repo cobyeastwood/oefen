@@ -1,7 +1,7 @@
 import type { Checkpoint, Goal, Session } from '@prisma/client';
 
 import type { FreezeResult } from '../freeze';
-import type { SummarizerInvoker } from '../invoke-summarizer';
+import type { SummaryInvoker } from '../invoke-summary';
 
 /** Shared input for every checkpoint detector. */
 export type DetectorContext = {
@@ -12,7 +12,7 @@ export type DetectorContext = {
   /** Sessions in `[goal.effectiveFrom, now]` (empty when there is no goal). */
   sessions: Session[];
   /** When set, used to kick off summary after a freeze (e.g. Lambda invoke). */
-  invokeSummarizer?: SummarizerInvoker;
+  invokeSummary?: SummaryInvoker;
 };
 
 /**

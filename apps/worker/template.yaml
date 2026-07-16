@@ -7,7 +7,7 @@ Parameters:
     Type: String
     Default: /oefen/worker
     Description: SSM Parameter Store prefix for worker configuration
-  SummarizerFunctionName:
+  SummaryFunctionName:
     Type: String
     Default: oefen-summary
     Description: Summary Lambda to invoke when a new checkpoint is frozen
@@ -20,7 +20,7 @@ Globals:
     Environment:
       Variables:
         SSM_PREFIX: !Ref SsmPrefix
-        SUMMARIZER_FUNCTION_NAME: !Ref SummarizerFunctionName
+        SUMMARY_FUNCTION_NAME: !Ref SummaryFunctionName
 
 Resources:
   WorkerFunction:
@@ -43,7 +43,7 @@ Resources:
               Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmPrefix}/garmin-tokens'
             - Effect: Allow
               Action: lambda:InvokeFunction
-              Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${SummarizerFunctionName}'
+              Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${SummaryFunctionName}'
 
   WorkerScheduleRole:
     Type: AWS::IAM::Role

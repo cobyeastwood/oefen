@@ -30,7 +30,7 @@ describe('volumeDelta', () => {
       basisWeeks: 4,
       loadRatio: 41300 / 22750,
     });
-    // Display rounding (1 decimal km, whole %) is summarizer-side.
+    // Display rounding (1 decimal km, whole %) is summary-side.
     expect(Math.round((result!.trailingMeanM / 1000) * 10) / 10).toBe(22.8);
     expect(Math.round(result!.pctChange * 100)).toBe(82);
   });

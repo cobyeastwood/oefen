@@ -5,8 +5,8 @@ Description: Checkpoint summary generator (Mastra agent)
 Parameters:
   SsmPrefix:
     Type: String
-    Default: /oefen/summarizer
-    Description: SSM Parameter Store prefix for summarizer configuration
+    Default: /oefen/summary
+    Description: SSM Parameter Store prefix for summary configuration
 
 Globals:
   Function:
@@ -18,7 +18,7 @@ Globals:
         SSM_PREFIX: !Ref SsmPrefix
 
 Resources:
-  SummarizerFunction:
+  SummaryFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: oefen-summary
@@ -35,6 +35,6 @@ Resources:
               Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmPrefix}/*'
 
 Outputs:
-  SummarizerFunctionArn:
-    Description: Summarizer Lambda ARN
-    Value: !GetAtt SummarizerFunction.Arn
+  SummaryFunctionArn:
+    Description: Summary Lambda ARN
+    Value: !GetAtt SummaryFunction.Arn

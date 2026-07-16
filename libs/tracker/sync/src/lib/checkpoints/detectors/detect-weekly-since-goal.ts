@@ -29,7 +29,7 @@ async function detect(ctx: DetectorContext): Promise<FreezeResult[]> {
       {
         goalId: ctx.goal.id,
         goal: ctx.goal,
-        invokeSummarizer: ctx.invokeSummarizer,
+        invokeSummary: ctx.invokeSummary,
       },
     );
     if (result.created) {

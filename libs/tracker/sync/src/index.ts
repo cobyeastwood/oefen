@@ -1,6 +1,6 @@
 export { syncGarmin } from './lib/sync';
 export {
-  invokeSummarizer,
-  type SummarizerInvoker,
-  type SummarizerInvokeResult,
-} from './lib/checkpoints/invoke-summarizer';
+  invokeSummary,
+  type SummaryInvoker,
+  type SummaryInvokeResult,
+} from './lib/checkpoints/invoke-summary';
