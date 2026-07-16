@@ -626,7 +626,7 @@ export function App() {
               />
             </div>
 
-            <div className="col-span-full mt-0.5 flex min-h-control md:justify-end">
+            <div className="col-span-full mt-0.5 flex min-h-control pb-6 md:justify-end md:pb-2">
               <button
                 type="submit"
                 className={cx(buttonPrimaryClass, 'w-full md:w-auto')}
