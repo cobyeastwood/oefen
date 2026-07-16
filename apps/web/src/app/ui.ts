@@ -5,7 +5,7 @@ export function cx(...parts: Array<string | false | null | undefined>) {
 }
 
 export const pageClass =
-  'flex min-h-0 min-w-0 flex-1 justify-center overflow-x-hidden overflow-y-auto overscroll-y-contain px-5 py-7 touch-pan-y md:px-8 md:py-8';
+  'flex justify-center px-5 py-7 pb-32 md:px-8 md:py-8 md:pb-32';
 
 export const pageInnerClass =
   'flex w-full min-w-0 max-w-[26rem] flex-col gap-6';

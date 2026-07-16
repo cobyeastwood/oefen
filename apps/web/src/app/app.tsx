@@ -679,12 +679,7 @@ export function App() {
         </div>
       </main>
 
-      <div
-        className={cx(
-          'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
-          tab !== 'settings' && 'hidden',
-        )}
-      >
+      <div className={cx(tab !== 'settings' && 'hidden')}>
         <SettingsPage
           phoneE164={phoneE164}
           status={status}
