@@ -43,6 +43,7 @@ export function serializeCheckpoint(
     metricsJson: checkpoint.metricsJson,
     pace: metrics?.['pace'] ?? null,
     milestone: metrics?.['milestone'] ?? null,
+    volumeDelta: metrics?.['volumeDelta'] ?? null,
     goalSnapshot: checkpoint.goalSnapshot,
   };
 }
@@ -59,6 +60,7 @@ export function serializePrior(
     metricsJson: prior.metricsJson,
     pace: metrics?.['pace'] ?? null,
     milestone: metrics?.['milestone'] ?? null,
+    volumeDelta: metrics?.['volumeDelta'] ?? null,
     goalSnapshot: prior.goalSnapshot,
   };
 }

@@ -5,13 +5,14 @@ const SUMMARIZER_INSTRUCTIONS = `You describe frozen training facts in plain lan
 Use only numbers present in the provided JSON. Never invent, extrapolate, or estimate values.
 You may state comparisons between the provided checkpoints and the goal target as arithmetic facts.
 When pace fields are present, state elapsed time versus progress in one sentence, and the gap to target in one sentence, as numbers only.
+When volumeDelta is present, state current distance versus the trailing average once. Never characterize the change as good, bad, risky, or safe.
 Never advise, prescribe, recommend, warn, or suggest any training action. Never speculate about causes.
 If data is sparse, say so plainly.`;
 
 const SUMMARIZER_MODEL = 'google/gemini-2.5-flash-lite';
 
 /** Tag for summary input shape; bump when prompt JSON fields change. */
-export const SUMMARIZER_INPUT_SCHEMA_TAG = 'pace-v1';
+export const SUMMARIZER_INPUT_SCHEMA_TAG = 'volume-delta-v1';
 
 export const SUMMARIZER_PROMPT = {
   instructions: SUMMARIZER_INSTRUCTIONS,

@@ -14,6 +14,7 @@ import {
   checkpointMetrics,
   countWeeksMeetingTarget,
   readCheckpointMetrics,
+  volumeDelta,
   type DeadlineMilestone,
 } from '../metrics';
 import type { FreezeResult } from './types';
@@ -30,22 +31,17 @@ type CreateFrozenCheckpointInput = {
   milestone?: DeadlineMilestone;
 };
 
-async function resolveWeeksMeetingTarget(input: {
+function weeksMeetingTargetFromPriors(input: {
   type: CheckpointType;
-  periodEnd: Date;
   goal: Goal | null;
   draftMetrics: ReturnType<typeof checkpointMetrics>;
+  priorWeekly: Awaited<ReturnType<typeof listPriorCheckpoints>>;
 }) {
   if (!input.goal || goalTypeFromMetric(input.goal.targetMetric) !== 'distance') {
     return null;
   }
 
-  const priorWeekly = await listPriorCheckpoints(
-    'weekly_since_goal',
-    input.periodEnd,
-    input.type === 'weekly_since_goal' ? 3 : 4,
-  );
-  const priorMetrics = priorWeekly.map((checkpoint) =>
+  const priorMetrics = input.priorWeekly.map((checkpoint) =>
     readCheckpointMetrics(checkpoint.metricsJson),
   );
 
@@ -66,11 +62,18 @@ export async function createFrozenCheckpoint(
     now: input.periodEnd,
   });
 
-  const weeksMeetingTarget = await resolveWeeksMeetingTarget({
+  const priorWeekly = await listPriorCheckpoints(
+    'weekly_since_goal',
+    input.periodEnd,
+    4,
+    input.goalId,
+  );
+
+  const weeksMeetingTarget = weeksMeetingTargetFromPriors({
     type: input.type,
-    periodEnd: input.periodEnd,
     goal: input.goal,
     draftMetrics: metrics,
+    priorWeekly,
   });
   if (weeksMeetingTarget || metrics.pace) {
     metrics.pace = buildCheckpointPace({
@@ -81,6 +84,12 @@ export async function createFrozenCheckpoint(
   }
   if (input.milestone != null) {
     metrics.milestone = input.milestone;
+  }
+  if (input.type === 'weekly_since_goal') {
+    metrics.volumeDelta = volumeDelta(
+      totals.distanceM,
+      priorWeekly.map((checkpoint) => ({ distanceM: checkpoint.distanceM })),
+    );
   }
 
   try {

@@ -14,6 +14,17 @@ export type CheckpointPace = {
 
 export type DeadlineMilestone = 0.75 | 0.5 | 0.25;
 
+/** This week vs trailing weekly mean for volume anomaly facts. */
+export type VolumeDelta = {
+  weekDistanceM: number;
+  trailingMeanM: number;
+  /** (week − mean) / mean. */
+  pctChange: number;
+  basisWeeks: number;
+  /** week ÷ trailing mean (acute:chronic weekly load ratio). */
+  loadRatio: number;
+};
+
 export type CheckpointMetrics = {
   totalDistanceM: number;
   sessionCount: number;
@@ -42,4 +53,6 @@ export type CheckpointMetrics = {
   pace: CheckpointPace | null;
   /** Remaining-ratio threshold that triggered a deadline_quarter freeze. */
   milestone?: DeadlineMilestone;
+  /** This week vs trailing weekly mean; set on weekly_since_goal freezes. */
+  volumeDelta?: VolumeDelta | null;
 };

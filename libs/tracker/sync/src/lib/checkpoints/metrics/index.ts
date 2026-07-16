@@ -1,4 +1,9 @@
-export type { CheckpointMetrics, CheckpointPace, DeadlineMilestone } from './types';
+export type {
+  CheckpointMetrics,
+  CheckpointPace,
+  DeadlineMilestone,
+  VolumeDelta,
+} from './types';
 export { aggregateSessionTotals } from './aggregate-session-totals';
 export {
   raceEquivalentSec,
@@ -10,3 +15,4 @@ export {
   countWeeksMeetingTarget,
   readCheckpointMetrics,
 } from './build-checkpoint-pace';
+export { volumeDelta } from './compute-volume-delta';

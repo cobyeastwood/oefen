@@ -382,13 +382,18 @@ export async function listPriorCheckpoints(
   type: CheckpointType,
   beforeEnd: Date,
   take: number,
+  goalId?: string | null,
 ) {
   if (take <= 0) {
     return [];
   }
   const prisma = await getPrisma();
   return prisma.checkpoint.findMany({
-    where: { type, periodEnd: { lt: beforeEnd } },
+    where: {
+      type,
+      periodEnd: { lt: beforeEnd },
+      ...(goalId ? { goalId } : {}),
+    },
     orderBy: { periodEnd: 'desc' },
     take,
   });
