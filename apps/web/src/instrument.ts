@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/react';
 
 Sentry.init({
-  dsn: import.meta.env.SENTRY_DSN,
-  environment: import.meta.env.SENTRY_ENVIRONMENT,
+  dsn: import.meta.env.SENTRY_WEB_DSN,
+  environment: import.meta.env.VERCEL_ENV ?? 'development',
 
   sendDefaultPii: true,
 

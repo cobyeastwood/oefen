@@ -1,9 +1,12 @@
+import { sentry } from '@sentry/hono/node';
 import { Hono } from 'hono';
 
 import { goalsRoutes } from './routes/goals';
 import { userRoutes } from './routes/user';
 
 export const app = new Hono();
+
+app.use(sentry(app));
 
 app.route('/api/goals', goalsRoutes);
 app.route('/api/user', userRoutes);
