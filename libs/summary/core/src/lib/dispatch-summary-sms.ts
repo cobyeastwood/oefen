@@ -19,17 +19,23 @@ export async function dispatchSummarySms(
   checkpoint: CheckpointPeriod,
 ) {
   if (summary.smsSentAt) {
+    console.log('[summary] SMS already sent — skipping', {
+      summaryId: summary.id,
+      smsSentAt: summary.smsSentAt.toISOString(),
+    });
     return;
   }
 
   try {
     const user = await getUser();
     if (!isUserSyncEnabled(user.status)) {
-      console.warn(`User status is ${user.status}; skipping summary SMS`);
+      console.warn('[summary] User sync not enabled — skipping summary SMS', {
+        status: user.status,
+      });
       return;
     }
     if (!user.phoneE164) {
-      console.warn('User phone not set; skipping summary SMS');
+      console.warn('[summary] User phone not set — skipping summary SMS');
       return;
     }
 
@@ -43,8 +49,9 @@ export async function dispatchSummarySms(
 
     if (!sms.skipped) {
       await markSummarySmsSent(summary.id);
+      console.log('[summary] Summary SMS sent', { summaryId: summary.id });
     }
   } catch (error) {
-    console.warn('Summary SMS failed:', error);
+    console.warn('[summary] Summary SMS failed', { error });
   }
 }

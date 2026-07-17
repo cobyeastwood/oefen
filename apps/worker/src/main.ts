@@ -25,24 +25,12 @@ function okResponse(body: OkBody) {
 }
 
 async function prepareWorker(): Promise<void> {
-  console.log('[worker] Loading config from SSM');
   await loadWorkerConfig();
   logWorkerConfigReady();
   assertTokensLoaded();
 }
 
-async function loadSyncUser(): Promise<SyncUser> {
-  console.log('[worker] Loading user');
-  const user = await getUser();
-  console.log('[worker] User loaded', {
-    status: user.status,
-    createdAt: user.createdAt.toISOString(),
-  });
-  return user;
-}
-
 async function runGarminSync(user: SyncUser, startedAt: number) {
-  console.log('[worker] Starting Garmin sync');
   const result = await syncGarmin(user, {
     onAuthenticated: captureAndPersistTokens,
     onSyncComplete: captureAndPersistTokens,
@@ -62,13 +50,9 @@ async function runGarminSync(user: SyncUser, startedAt: number) {
   return result;
 }
 
-async function cleanupWorker(startedAt: number): Promise<void> {
+async function cleanupWorker(): Promise<void> {
   await persistPendingTokens();
-  console.log('[worker] Disconnecting Prisma');
   await disconnectPrisma();
-  console.log('[worker] Invoke finished', {
-    durationMs: Date.now() - startedAt,
-  });
 }
 
 export const handler: Handler = async (event) => {
@@ -82,7 +66,7 @@ export const handler: Handler = async (event) => {
   try {
     await prepareWorker();
 
-    const user = await loadSyncUser();
+    const user = await getUser();
     if (!isUserSyncEnabled(user.status)) {
       console.log('[worker] Sync skipped — user status not enabled', {
         status: user.status,
@@ -101,6 +85,6 @@ export const handler: Handler = async (event) => {
     // counts as a successful invoke and skips the schedule retry policy).
     throw error;
   } finally {
-    await cleanupWorker(startedAt);
+    await cleanupWorker();
   }
 };

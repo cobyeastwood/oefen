@@ -12,6 +12,7 @@ export async function loadSummaryConfig(): Promise<void> {
   const prefix = process.env['SSM_PREFIX'];
 
   if (!prefix) {
+    console.log('[summary] SSM_PREFIX unset — using process env as-is');
     return;
   }
 
@@ -31,6 +32,7 @@ export async function loadSummaryConfig(): Promise<void> {
     }),
   );
 
+  const loaded: string[] = [];
   for (const parameter of response.Parameters ?? []) {
     if (!parameter.Name || !parameter.Value) {
       continue;
@@ -41,8 +43,10 @@ export async function loadSummaryConfig(): Promise<void> {
 
     if (envKey) {
       process.env[envKey] = parameter.Value;
+      loaded.push(suffix);
     }
   }
+  console.log('[summary] SSM parameters loaded', { loaded });
 
   const missing = response.InvalidParameters ?? [];
   if (missing.length > 0) {

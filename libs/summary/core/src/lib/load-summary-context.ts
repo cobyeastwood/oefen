@@ -38,13 +38,22 @@ export async function loadSummaryContext(
     ? await loadWellnessAverages(prior.periodStart, prior.periodEnd)
     : null;
 
+  const goalTarget =
+    goalTargetFromSnapshot(checkpoint.goalSnapshot) ??
+    activeGoal?.targetValue ??
+    null;
+
+  console.log('[summary] Context loaded', {
+    checkpointId,
+    checkpointType: checkpoint.type,
+    hasPrior: prior != null,
+    goalTarget,
+  });
+
   return {
     checkpoint,
     prior,
-    goalTarget:
-      goalTargetFromSnapshot(checkpoint.goalSnapshot) ??
-      activeGoal?.targetValue ??
-      null,
+    goalTarget,
     wellness,
     priorWellness,
   };

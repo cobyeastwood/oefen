@@ -11,12 +11,6 @@ async function invokeSummaryLambda(
   functionName: string,
   checkpointId: string,
 ): Promise<SummaryInvokeResult> {
-  console.log('[worker] Invoking summary Lambda', {
-    functionName,
-    checkpointId,
-    invocationType: 'Event',
-  });
-
   await lambda.send(
     new InvokeCommand({
       FunctionName: functionName,
@@ -25,7 +19,10 @@ async function invokeSummaryLambda(
     }),
   );
 
-  console.log('[worker] Summary Lambda invoke accepted', { checkpointId });
+  console.log('[worker] Summary Lambda invoke accepted', {
+    functionName,
+    checkpointId,
+  });
   return { invoked: 'lambda', checkpointId };
 }
 
@@ -34,13 +31,9 @@ async function invokeSummaryInProcess(
 ): Promise<SummaryInvokeResult> {
   console.log(
     '[worker] No SUMMARY_FUNCTION_NAME — generating summary locally',
-    {
-      checkpointId,
-    },
+    { checkpointId },
   );
-  const result = await invokeSummaryLocal(checkpointId);
-  console.log('[worker] Local summary generation finished', result);
-  return result;
+  return invokeSummaryLocal(checkpointId);
 }
 
 /** Prefer async summary Lambda; fall back to in-process for local runs. */

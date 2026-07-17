@@ -83,14 +83,8 @@ export async function loadWorkerConfig(): Promise<void> {
 
   const names = ssmNamesToFetch(prefix);
   if (names.length === 0) {
-    console.log('[worker] All SSM-backed env vars already set — skip fetch');
     return;
   }
-
-  console.log('[worker] Fetching SSM parameters', {
-    count: names.length,
-    names,
-  });
 
   const client = new SSMClient({});
   const response = await client.send(
@@ -100,8 +94,7 @@ export async function loadWorkerConfig(): Promise<void> {
     }),
   );
 
-  const loaded = applySsmParameters(prefix, response);
-  console.log('[worker] SSM parameters loaded', { loaded });
+  applySsmParameters(prefix, response);
   assertRequiredSsmParams(prefix, response);
 }
 
@@ -124,8 +117,6 @@ export async function persistGarminTokens(tokensJson: string): Promise<void> {
       Overwrite: true,
     }),
   );
-
-  console.log('[worker] Wrote SSM parameter', { name });
 }
 
 /** Fail fast before sync if oauth tokens never loaded. */

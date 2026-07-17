@@ -23,7 +23,6 @@ export async function persistPendingTokens(): Promise<void> {
   }
 
   try {
-    console.log('[worker] Persisting Garmin tokens to SSM');
     await persistGarminTokens(tokensJson);
     process.env['GARMIN_TOKENS_SHOULD_PERSIST'] = '0';
     console.log('[worker] Garmin tokens persisted to SSM');

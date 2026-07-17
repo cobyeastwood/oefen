@@ -17,6 +17,8 @@ Globals:
     Timeout: 300
     Runtime: nodejs22.x
     MemorySize: 256
+    LoggingConfig:
+      LogFormat: JSON
     Environment:
       Variables:
         SSM_PREFIX: !Ref SsmPrefix
